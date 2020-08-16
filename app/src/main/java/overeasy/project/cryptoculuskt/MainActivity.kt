@@ -48,9 +48,7 @@ class MainActivity : AppCompatActivity() {
     var button: Button = findViewById(R.id.button)
     var spinnerAdapter: ArrayAdapter<String>? = null
     var adapter: MainAdapter? = null
-    var refreshedCoinone = false
-    var refreshedBithumb = false
-    var refreshedHuobi = false
+    var refreshed = false
     var restartApp = false
     private val sendIntent = 1
     private val getIntent = 2
@@ -114,12 +112,6 @@ class MainActivity : AppCompatActivity() {
         init()
 
         swipeRefreshLayout.setOnRefreshListener {
-            if (URL == coinoneAddress) 
-                refreshedCoinone = true
-            if (URL == bithumbAddress) 
-                refreshedBithumb = true
-            if (URL == huobiAddress) 
-                refreshedHuobi = true
             
             getData()
             init()
@@ -129,8 +121,8 @@ class MainActivity : AppCompatActivity() {
     }
     
     override fun onBackPressed() {
-        var pref: SharedPreferences
-        var editor: SharedPreferences.Editor
+        var pref: SharedPreferences = getSharedPreferences("saveCoinone", MODE_PRIVATE)
+        var editor: SharedPreferences.Editor = pref.edit()
 
         // SharedPreferences로 저장해야 하는 게 뭐지?
         // position이랑 coinViewCheck잖아?
@@ -140,14 +132,7 @@ class MainActivity : AppCompatActivity() {
             pref = getSharedPreferences("saveCoinone", MODE_PRIVATE)
             editor = pref.edit()
 
-            editor.putBoolean("isEmptyCoinone", false)
-
-            for (i in coinInfosCoinone.indices) {
-                editor.putInt("${coinInfosCoinone[i]!!.coinName} position", i)
-                editor.putBoolean(coinInfosCoinone[i]!!.coinName, coinInfosCoinone[i]!!.coinViewCheck)
-            }
-
-            editor.commit()
+            editor.putBoolean("isEmptyCoinone", false) // 재시작 후 coinInfos의 정보를 읽어올 때 오류 방지용
         }
 
         if (coinInfosBithumb.isNotEmpty()) {
@@ -155,13 +140,6 @@ class MainActivity : AppCompatActivity() {
             editor = pref.edit()
 
             editor.putBoolean("isEmptyBithumb", false)
-
-            for (i in coinInfosBithumb.indices) {
-                editor.putInt("${coinInfosBithumb[i]!!.coinName} position", i)
-                editor.putBoolean(coinInfosBithumb[i]!!.coinName, coinInfosBithumb[i]!!.coinViewCheck)
-            }
-
-            editor.commit()
         }
 
         if (coinInfosHuobi.isNotEmpty()) {
@@ -169,14 +147,14 @@ class MainActivity : AppCompatActivity() {
             editor = pref.edit()
 
             editor.putBoolean("isEmptyHuobi", false)
-
-            for (i in coinInfosHuobi.indices) {
-                editor.putInt("${coinInfosHuobi[i]!!.coinName} position", i)
-                editor.putBoolean(coinInfosHuobi[i]!!.coinName, coinInfosHuobi[i]!!.coinViewCheck)
-            }
-
-            editor.commit()
         }
+
+        for (i in coinInfos.indices) {
+            editor.putInt("${coinInfos[i]!!.coinName} position", i)
+            editor.putBoolean(coinInfos[i]!!.coinName, coinInfos[i]!!.coinViewCheck)
+        }
+
+        editor.commit()
 
         pref = getSharedPreferences("URL", MODE_PRIVATE)
         editor = pref.edit()
@@ -201,18 +179,16 @@ class MainActivity : AppCompatActivity() {
 
                 URL = intent!!.extras!!.getString("URL")!!
 
-                if (URL == coinoneAddress) {
+                coinInfos = intent.getSerializableExtra("coinInfos") as ArrayList<CoinInfo?>
+
+                /* if (URL == coinoneAddress)
                     coinInfosCoinone = intent.getSerializableExtra("coinInfosCoinone") as ArrayList<CoinInfoCoinone?>
-                    refreshedCoinone = true
-                }
-                if (URL == bithumbAddress) {
+
+                if (URL == bithumbAddress)
                     coinInfosBithumb = intent.getSerializableExtra("coinInfosBithumb") as ArrayList<CoinInfoBithumb?>
-                    refreshedBithumb = true
-                }
-                if (URL == huobiAddress) {
-                    coinInfosHuobi = intent.getSerializableExtra("coinInfosHuobi") as ArrayList<CoinInfoHuobi?>
-                    refreshedHuobi = true
-                }
+
+                if (URL == huobiAddress)
+                    coinInfosHuobi = intent.getSerializableExtra("coinInfosHuobi") as ArrayList<CoinInfoHuobi?> */
 
                 getData()
                 init()
@@ -248,14 +224,16 @@ class MainActivity : AppCompatActivity() {
             var intent = Intent(applicationContext, OptionActivity::class.java)
             intent.putExtra("URL", URL)
 
-            if (URL == coinoneAddress)
+            /* if (URL == coinoneAddress)
                 intent.putExtra("coinInfosCoinone", coinInfosCoinone)
 
             if (URL == bithumbAddress)
                 intent.putExtra("coinInfosBithumb", coinInfosBithumb)
 
             if (URL == huobiAddress)
-                intent.putExtra("coinInfosHuobi", coinInfosHuobi)
+                intent.putExtra("coinInfosHuobi", coinInfosHuobi) */
+
+            intent.putExtra("coinInfos", coinInfos)
 
             startActivityForResult(intent, sendIntent)
         }
@@ -299,17 +277,13 @@ class MainActivity : AppCompatActivity() {
         var gson = Gson()
         var arrayMaker = ArrayMaker(
             restartApp,
-            refreshedCoinone,
-            refreshedBithumb,
-            refreshedHuobi,
-            coinInfosCoinone,
-            coinInfosBithumb,
-            coinInfosHuobi,
+            refreshed,
+            coinInfos,
             URL,
             this
         )
 
-        var currencyList: Currencys = Currencys()
+        var currencyList = Currencys()
 
         if (URL == coinoneAddress)
             currencyList = gson.fromJson(response, CurrencysCoinone::class.java)

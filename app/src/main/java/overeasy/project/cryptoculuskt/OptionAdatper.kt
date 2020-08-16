@@ -32,7 +32,7 @@ class OptionAdapter(private var mCallback: DataTransferOption) : RecyclerView.Ad
         var imageView: ImageView = itemView.findViewById(R.id.imageView)
         var checkedTextView: CheckedTextView = itemView.findViewById(R.id.checkedTextView)
 
-        fun setItemCoinone(coinInfo: CoinInfoCoinone) {
+        /* fun setItemCoinone(coinInfo: CoinInfoCoinone) {
             imageView.setImageResource(coinInfo.coinImageIndex)
             checkedTextView.text = "${(coinInfo.coinData as TickerCoinone)!!.currency.toUpperCase()} / ${coinInfo.coinName}"
             checkedTextView.setChecked(coinInfo.coinViewCheck)
@@ -48,15 +48,12 @@ class OptionAdapter(private var mCallback: DataTransferOption) : RecyclerView.Ad
             imageView.setImageResource(coinInfo.coinImageIndex)
             checkedTextView.text = coinInfo.coinName
             checkedTextView.setChecked(coinInfo.coinViewCheck)
-        }
+        } */
+
         fun setItem(coinInfo: CoinInfo) {
             imageView.setImageResource(coinInfo.coinImageIndex)
+            checkedTextView.text = coinInfo.coinName
             checkedTextView.isChecked = coinInfo.coinViewCheck
-
-            if (URL == coinoneAddress)
-                checkedTextView.text = "${(coinInfo.coinData as TickerCoinone)!!.currency.toUpperCase()} / ${coinInfo.coinName}"
-            else
-                checkedTextView.text = coinInfo.coinName
             // ArrayMaker에서 코인원 coinName 넣을 때 그냥 currency랑 합쳐서 넣어버려?
         }
     }
@@ -69,11 +66,135 @@ class OptionAdapter(private var mCallback: DataTransferOption) : RecyclerView.Ad
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        val finalPosition = position
+        viewHolder.setItem(filteredCoinInfos[position]!!)
 
-        if (URL == coinoneAddress) {
+        if (filteredCoinInfos[position]!!.coinViewCheck)
+            mCallback.changeSelectAll(false)
 
+        viewHolder.checkedTextView.setOnClickListener {
+            val checkedTextView = it as CheckedTextView
+            checkedTextView.toggle()
+            filteredCoinInfos[position]!!.coinViewCheck = checkedTextView.isChecked
+
+            val temp1 = filteredCoinInfos[position]!!.coinName
+
+            for (i in coinInfos.indices) {
+                val temp2 = coinInfos[i]!!.coinName
+                if (temp1 == temp2)
+                    coinInfos[i]!!.coinViewCheck = checkedTextView.isChecked
+            }
+
+            if (checkedTextView.isChecked) {
+                for (i in filteredCoinInfos.indices) {
+                    if (!filteredCoinInfos[i]!!.coinViewCheck)
+                        break
+                    if ((i == filteredCoinInfos.size - 1) and filteredCoinInfos[i]!!.coinViewCheck)
+                        mCallback.changeSelectAll(true)
+                }
+            }
+
+            else {
+                mCallback.changeSelectAll(false)
+            }
         }
+        /* if (URL == coinoneAddress) {
+            viewHolder.setItemCoinone(filteredCoinInfos[position] as CoinInfoCoinone?)
+            if (!(filteredCoinInfos[position] as CoinInfoCoinone).getCoinViewCheck()) mCallback.changeSelectAll(
+                false
+            )
+            viewHolder.checkedTextView.setOnClickListener { view ->
+                val checkedTextView = view as CheckedTextView
+                checkedTextView.toggle()
+                (filteredCoinInfos[finalPosition] as CoinInfoCoinone).setCoinViewCheck(checkedTextView.isChecked)
+                for (i in coinInfos.indices) {
+                    val temp1: String =
+                        (filteredCoinInfos[finalPosition] as CoinInfoCoinone).getCoinName()
+                    val temp2: String =
+                        (coinInfos[i] as CoinInfoCoinone).getCoinName()
+                    if (temp1 == temp2) (coinInfos[i] as CoinInfoCoinone).setCoinViewCheck(
+                        checkedTextView.isChecked
+                    )
+                }
+                if (checkedTextView.isChecked) { // checkedTextView가 체크됐을 때
+                    for (i in filteredCoinInfos.indices) {
+                        if (!(filteredCoinInfos[i] as CoinInfoCoinone).getCoinViewCheck()) break
+                        if (i == filteredCoinInfos.size - 1 && (filteredCoinInfos[i] as CoinInfoCoinone).getCoinViewCheck()) mCallback.changeSelectAll(
+                            true
+                        )
+                    }
+                }
+                if (!checkedTextView.isChecked) { // checkedTextView의 체크가 풀렸을 때
+                    mCallback.changeSelectAll(false)
+                }
+            }
+        }
+
+        if (URL == bithumbAddress) {
+            viewHolder.setItemBithumb(filteredCoinInfos[position] as CoinInfoBithumb?)
+            if (!(filteredCoinInfos[position] as CoinInfoBithumb).getCoinViewCheck()) mCallback.changeSelectAll(
+                false
+            )
+            viewHolder.checkedTextView.setOnClickListener { view ->
+                val checkedTextView = view as CheckedTextView
+                checkedTextView.toggle()
+                (filteredCoinInfos[finalPosition] as CoinInfoBithumb).setCoinViewCheck(
+                    checkedTextView.isChecked
+                )
+                for (i in coinInfos.indices) {
+                    val temp1: String =
+                        (filteredCoinInfos[finalPosition] as CoinInfoBithumb).getCoinName()
+                    val temp2: String =
+                        (coinInfos[i] as CoinInfoBithumb).getCoinName()
+                    if (temp1 == temp2) (coinInfos[i] as CoinInfoBithumb).setCoinViewCheck(
+                        checkedTextView.isChecked
+                    )
+                }
+                if (checkedTextView.isChecked) {
+                    for (i in filteredCoinInfos.indices) {
+                        if (!(filteredCoinInfos[i] as CoinInfoBithumb).getCoinViewCheck()) break
+                        if (i == filteredCoinInfos.size - 1 && (filteredCoinInfos[i] as CoinInfoBithumb).getCoinViewCheck()) mCallback.changeSelectAll(
+                            true
+                        )
+                    }
+                }
+                if (!checkedTextView.isChecked) {
+                    mCallback.changeSelectAll(false)
+                }
+            }
+        }
+
+        if (URL == huobiAddress) {
+            viewHolder.setItemHuobi(filteredCoinInfos[position] as CoinInfoHuobi?)
+            if (!(filteredCoinInfos[position] as CoinInfoHuobi).getCoinViewCheck()) mCallback.changeSelectAll(
+                false
+            )
+            viewHolder.checkedTextView.setOnClickListener { view ->
+                val checkedTextView = view as CheckedTextView
+                checkedTextView.toggle()
+                (filteredCoinInfos[finalPosition] as CoinInfoHuobi).setCoinViewCheck(
+                    checkedTextView.isChecked
+                )
+                for (i in coinInfos.indices) {
+                    val temp1: String =
+                        (filteredCoinInfos[finalPosition] as CoinInfoHuobi).getCoinName()
+                    val temp2: String = (coinInfos[i] as CoinInfoHuobi).getCoinName()
+                    if (temp1 == temp2) (coinInfos[i] as CoinInfoHuobi).setCoinViewCheck(
+                        checkedTextView.isChecked
+                    )
+                }
+                if (checkedTextView.isChecked) { // checkedTextView가 체크됐을 때
+                    for (i in filteredCoinInfos.indices) {
+                        if (!(filteredCoinInfos[i] as CoinInfoHuobi).getCoinViewCheck()) break
+                        if (i == filteredCoinInfos.size - 1 && (filteredCoinInfos[i] as CoinInfoHuobi).getCoinViewCheck()) mCallback.changeSelectAll(
+                            true
+                        )
+                    }
+                }
+                if (!checkedTextView.isChecked) { // checkedTextView의 체크가 풀렸을 때
+                    mCallback.changeSelectAll(false)
+                }
+            }
+        } */
     }
 
     override fun getItemCount(): Int {
@@ -87,7 +208,23 @@ class OptionAdapter(private var mCallback: DataTransferOption) : RecyclerView.Ad
     }
 
     fun selectAll(checkAll: Boolean) {
-        if (URL.equals(coinoneAddress)) {
+        if (checkAll) {
+            for (i in filteredCoinInfos.indices) {
+                filteredCoinInfos[i]!!.coinViewCheck = true
+
+                if (mCallback.getEditTextIsEmpty())
+                    coinInfos[i]!!.coinViewCheck = true
+            }
+        }
+        else {
+            for (i in filteredCoinInfos.indices) {
+                filteredCoinInfos[i]!!.coinViewCheck = false
+
+                if (mCallback.getEditTextIsEmpty())
+                    coinInfos[i]!!.coinViewCheck = false
+            }
+        }
+        /* if (URL == coinoneAddress) {
             if (checkAll) {
                 for (i in filteredCoinInfos.indices) {
                     (filteredCoinInfos[i] as CoinInfoCoinone).coinViewCheck = true
@@ -106,7 +243,7 @@ class OptionAdapter(private var mCallback: DataTransferOption) : RecyclerView.Ad
                 }
             }
         }
-        if (URL.equals(bithumbAddress)) {
+        if (URL == bithumbAddress) {
             if (checkAll) {
                 for (i in filteredCoinInfos.indices) {
                     (filteredCoinInfos[i] as CoinInfoBithumb).coinViewCheck = true
@@ -125,7 +262,7 @@ class OptionAdapter(private var mCallback: DataTransferOption) : RecyclerView.Ad
                 }
             }
         }
-        if (URL.equals(huobiAddress)) {
+        if (URL == huobiAddress) {
             if (checkAll) {
                 for (i in filteredCoinInfos.indices) {
                     (filteredCoinInfos[i] as CoinInfoHuobi).coinViewCheck = true
@@ -143,7 +280,7 @@ class OptionAdapter(private var mCallback: DataTransferOption) : RecyclerView.Ad
 
                 }
             }
-        }
+        } */
     }
 
     fun sortCoinInfos() {
@@ -212,7 +349,7 @@ class OptionAdapter(private var mCallback: DataTransferOption) : RecyclerView.Ad
                     filteredCoinInfos = filteringList
                 }
 
-                var filterResults: FilterResults = FilterResults()
+                var filterResults = FilterResults()
 
                 if (coinInfos.size != filteredCoinInfos.size) // 검색창이 비었을 때, editText.isEmpty()
                     filterResults.values = coinInfos

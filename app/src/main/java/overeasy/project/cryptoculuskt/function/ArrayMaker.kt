@@ -18,12 +18,14 @@ import java.util.*
 
 class ArrayMaker(
     private var restartApp: Boolean,
-    private var refreshedCoinone: Boolean,
+    private var refreshed: Boolean,
+    /* private var refreshedCoinone: Boolean,
     private var refreshedBithumb: Boolean,
     private var refreshedHuobi: Boolean,
     private var coinInfosCoinone: ArrayList<CoinInfoCoinone?>,
     private var coinInfosBithumb: ArrayList<CoinInfoBithumb?>,
-    private var coinInfosHuobi: ArrayList<CoinInfoHuobi?>,
+    private var coinInfosHuobi: ArrayList<CoinInfoHuobi?>,*/
+    private var coinInfosInput: ArrayList<CoinInfo?>,
     private var URL: String,
     private var mContext: Context) {
 
@@ -46,7 +48,8 @@ class ArrayMaker(
 
         coinInfos = makeCoinInfos(currencyList)
 
-        if (restartApp) {
+        if (restartApp) { // restartApp == true -> 다시 시작했다
+            // 다시 시작했다 == pref.isNotEmpty()
             var getPositions = arrayOfNulls<Int>(coinInfos.size)
             var temp: ArrayList<CoinInfo?> = ArrayList<CoinInfo?>()
 
@@ -74,11 +77,29 @@ class ArrayMaker(
 
             if (!isEmptyCoinone and !isEmptyBithumb and !isEmptyHuobi)
                 restartApp = false
+
         }
 
         // ArrayList를 임시로 만들어서 거기다만 대입시키면 변수 하나로도 충분하지 않아?
         // var coinInfosBithumb = coinInfosInput as ArrayList<CoinInfoBithumb>
-        if (refreshedBithumb) {
+        if (refreshed) {
+            for (i in coinInfos.indices) {
+                val temp1 = coinInfosInput[i]!!.coinName
+                val temp2 = coinInfos[i]!!.coinName
+
+                if (temp1 != temp2) {
+                    for (j in coinInfos.indices) {
+                        if (temp1 == coinInfos[j]!!.coinName)
+                            Collections.swap(coinInfos, i, j)
+                    }
+                }
+            }
+        }
+
+        for (i in coinInfos.indices)
+            coinInfos[i]!!.coinViewCheck = coinInfosInput[i]!!.coinViewCheck
+
+        /*if (refreshedBithumb) {
             for (i in coinInfos.indices) {
                 var temp1: String = coinInfosBithumb[i]?.coinName!!
                 var temp2: String = coinInfos[i]?.coinName!!
@@ -93,11 +114,11 @@ class ArrayMaker(
 
             for (i in coinInfos.indices)
                 coinInfos[i]?.coinViewCheck = coinInfosBithumb[i]?.coinViewCheck!!
-        }
+        } */
 
         return coinInfos
     }
-    fun makeArrayCoinone(currencyList: CurrencysCoinone): ArrayList<CoinInfoCoinone?> {
+    /* fun makeArrayCoinone(currencyList: CurrencysCoinone): ArrayList<CoinInfoCoinone?> {
         var coinInfos: ArrayList<CoinInfoCoinone?> = ArrayList<CoinInfoCoinone?>()
         var pref: SharedPreferences = mContext.getSharedPreferences("saveCoinone", MODE_PRIVATE)
 
@@ -471,7 +492,7 @@ class ArrayMaker(
         }
 
         return coinInfos
-    }
+    } */
 
     fun isEmpty(something: Any?): Boolean {
         if (something == null)
@@ -495,104 +516,104 @@ class ArrayMaker(
             var currencyList = currencysInput as CurrencysCoinone
 
             coinInfos.add(CoinInfoCoinone(currencyList.btc, "BTC / 비트코인", R.drawable.btc))
-            coinInfos.add(CoinInfoCoinone(currencyList.eth, "이더리움", R.drawable.eth))
-            coinInfos.add(CoinInfoCoinone(currencyList.xrp, "리플", R.drawable.xrp))
-            coinInfos.add(CoinInfoCoinone(currencyList.bch, "비트코인 캐시", R.drawable.bch))
-            coinInfos.add(CoinInfoCoinone(currencyList.eos, "이오스", R.drawable.eos))
-            coinInfos.add(CoinInfoCoinone(currencyList.bsv, "비트코인사토시비전", R.drawable.bsv))
-            coinInfos.add(CoinInfoCoinone(currencyList.etc, "이더리움 클래식", R.drawable.etc))
-            coinInfos.add(CoinInfoCoinone(currencyList.ltc, "라이트코인", R.drawable.ltc))
-            coinInfos.add(CoinInfoCoinone(currencyList.prom, "프로메테우스", R.drawable.prom))
-            coinInfos.add(CoinInfoCoinone(currencyList.atom, "코스모스아톰", R.drawable.atom))
-            coinInfos.add(CoinInfoCoinone(currencyList.xtz, "테조스", R.drawable.xtz))
-            coinInfos.add(CoinInfoCoinone(currencyList.psc, "폴스타코인", R.drawable.basic)) //
-            coinInfos.add(CoinInfoCoinone(currencyList.pci, "페이코인", R.drawable.pci))
-            coinInfos.add(CoinInfoCoinone(currencyList.trx, "트론", R.drawable.trx))
-            coinInfos.add(CoinInfoCoinone(currencyList.fleta, "플레타", R.drawable.fleta))
-            coinInfos.add(CoinInfoCoinone(currencyList.qtum, "퀀텀", R.drawable.qtum))
-            coinInfos.add(CoinInfoCoinone(currencyList.luna, "루나", R.drawable.luna))
-            coinInfos.add(CoinInfoCoinone(currencyList.knc, "카이버", R.drawable.knc))
-            coinInfos.add(CoinInfoCoinone(currencyList.kvi, "케이브이아이", R.drawable.basic)) //
-            coinInfos.add(CoinInfoCoinone(currencyList.egg, "네스트리", R.drawable.egg))
-            coinInfos.add(CoinInfoCoinone(currencyList.bna, "바나나톡", R.drawable.bna))
-            coinInfos.add(CoinInfoCoinone(currencyList.xlm, "스텔라루멘", R.drawable.xlm))
-            coinInfos.add(CoinInfoCoinone(currencyList.iota, "아이오타", R.drawable.iota))
-            coinInfos.add(CoinInfoCoinone(currencyList.xpn, "판테온X", R.drawable.xpn))
-            coinInfos.add(CoinInfoCoinone(currencyList.gas, "가스", R.drawable.gas))
-            coinInfos.add(CoinInfoCoinone(currencyList.ogn, "오리진 프로토콜", R.drawable.ogn))
-            coinInfos.add(CoinInfoCoinone(currencyList.ong, "온돌로지가스", R.drawable.ong))
-            coinInfos.add(CoinInfoCoinone(currencyList.chz, "칠리즈", R.drawable.chz))
-            coinInfos.add(CoinInfoCoinone(currencyList.data, "스트리머", R.drawable.data))
-            coinInfos.add(CoinInfoCoinone(currencyList.soc, "소다코인", R.drawable.soc))
-            coinInfos.add(CoinInfoCoinone(currencyList.zil, "질리카", R.drawable.zil))
-            coinInfos.add(CoinInfoCoinone(currencyList.bat, "베이직어텐션토큰", R.drawable.bat))
-            coinInfos.add(CoinInfoCoinone(currencyList.zrx, "제로엑스", R.drawable.zrx))
-            coinInfos.add(CoinInfoCoinone(currencyList.pxl, "픽션네트워크", R.drawable.pxl))
-            coinInfos.add(CoinInfoCoinone(currencyList.isr, "인슈리움", R.drawable.isr))
-            coinInfos.add(CoinInfoCoinone(currencyList.neo, "네오", R.drawable.neo))
-            coinInfos.add(CoinInfoCoinone(currencyList.redi, "레디", R.drawable.redi))
-            coinInfos.add(CoinInfoCoinone(currencyList.mbl, "무비블록", R.drawable.mbl))
-            coinInfos.add(CoinInfoCoinone(currencyList.omg, "오미세고", R.drawable.omg))
-            coinInfos.add(CoinInfoCoinone(currencyList.btt, "비트토렌트", R.drawable.btt))
-            coinInfos.add(CoinInfoCoinone(currencyList.drm, "두드림체인", R.drawable.basic)) //
-            coinInfos.add(CoinInfoCoinone(currencyList.spin, "스핀프로토콜", R.drawable.spin))
-            coinInfos.add(CoinInfoCoinone(currencyList.ankr, "앵커 네크워크", R.drawable.ankr))
-            coinInfos.add(CoinInfoCoinone(currencyList.stpt, "에스티피", R.drawable.stpt))
-            coinInfos.add(CoinInfoCoinone(currencyList.ont, "온톨로지", R.drawable.ont))
-            coinInfos.add(CoinInfoCoinone(currencyList.matic, "매틱 네트워크", R.drawable.matic))
-            coinInfos.add(CoinInfoCoinone(currencyList.temco, "템코", R.drawable.temco))
-            coinInfos.add(CoinInfoCoinone(currencyList.ftm, "팬텀", R.drawable.ftm))
-            coinInfos.add(CoinInfoCoinone(currencyList.iotx, "아이오텍스", R.drawable.iotx))
-            coinInfos.add(CoinInfoCoinone(currencyList.abl, "에어블록", R.drawable.abl))
-            coinInfos.add(CoinInfoCoinone(currencyList.pib, "피블", R.drawable.pib))
-            coinInfos.add(CoinInfoCoinone(currencyList.amo, "아모코인", R.drawable.amo))
-            coinInfos.add(CoinInfoCoinone(currencyList.troy, "트로이", R.drawable.troy))
-            coinInfos.add(CoinInfoCoinone(currencyList.clb, "클라우드브릭", R.drawable.clb))
-            coinInfos.add(CoinInfoCoinone(currencyList.orbs, "오브스", R.drawable.orbs))
-            coinInfos.add(CoinInfoCoinone(currencyList.baas, "바스아이디", R.drawable.baas))
-            coinInfos.add(CoinInfoCoinone(currencyList.hint, "힌트체인", R.drawable.hint))
-            coinInfos.add(CoinInfoCoinone(currencyList.hibs, "하이블럭스", R.drawable.hibs))
-            coinInfos.add(CoinInfoCoinone(currencyList.dad, "다드", R.drawable.dad))
-            coinInfos.add(CoinInfoCoinone(currencyList.uos, "울트라", R.drawable.uos))
-            coinInfos.add(CoinInfoCoinone(currencyList.btg, "비트코인 골드", R.drawable.btg))
-            coinInfos.add(CoinInfoCoinone(currencyList.arpa, "알파 체인", R.drawable.arpa))
-            coinInfos.add(CoinInfoCoinone(currencyList.axl, "엑시얼", R.drawable.axl))
-            coinInfos.add(CoinInfoCoinone(currencyList.hum, "휴먼스케이프", R.drawable.hum))
-            coinInfos.add(CoinInfoCoinone(currencyList.ksc, "케이스타라이브", R.drawable.ksc))
-            coinInfos.add(CoinInfoCoinone(currencyList.wiken, "위드", R.drawable.wiken))
-            coinInfos.add(CoinInfoCoinone(currencyList.ftt, "에프티엑스 토큰", R.drawable.ftt))
-            coinInfos.add(CoinInfoCoinone(currencyList.obsr, "옵저버", R.drawable.obsr))
-            coinInfos.add(CoinInfoCoinone(currencyList.gom2, "고머니2", R.drawable.gom2))
-            coinInfos.add(CoinInfoCoinone(currencyList.klay, "클레이튼", R.drawable.klay))
-            coinInfos.add(CoinInfoCoinone(currencyList.kdag, "킹디에이쥐", R.drawable.kdag))
-            coinInfos.add(CoinInfoCoinone(currencyList.isdt, "아이스타더스트", R.drawable.basic))
-            coinInfos.add(CoinInfoCoinone(currencyList.snx, "신세틱스 네트워크", R.drawable.snx))
-            coinInfos.add(CoinInfoCoinone(currencyList.dvx, "데리벡스", R.drawable.dvx))
-            coinInfos.add(CoinInfoCoinone(currencyList.mch, "미콘캐시", R.drawable.mch))
-            coinInfos.add(CoinInfoCoinone(currencyList.exe, "8X8 프로토콜", R.drawable.exe))
-            coinInfos.add(CoinInfoCoinone(currencyList.lbxc, "럭스 바이오", R.drawable.lbxc))
-            coinInfos.add(CoinInfoCoinone(currencyList.show, "쇼고", R.drawable.basic))
-            coinInfos.add(CoinInfoCoinone(currencyList.get, "겟 프로토콜", R.drawable.get))
-            coinInfos.add(CoinInfoCoinone(currencyList.mov, "모티브", R.drawable.mov))
-            coinInfos.add(CoinInfoCoinone(currencyList.asm, "어셈블 프로토콜", R.drawable.asm))
-            coinInfos.add(CoinInfoCoinone(currencyList.bora, "보라", R.drawable.bora))
-            coinInfos.add(CoinInfoCoinone(currencyList.rnx, "루넥스", R.drawable.rnx))
-            coinInfos.add(CoinInfoCoinone(currencyList.kava, "카바", R.drawable.kava))
-            coinInfos.add(CoinInfoCoinone(currencyList.tmtg, "더마이다스터치골드", R.drawable.tmtg))
-            coinInfos.add(CoinInfoCoinone(currencyList.ibp, "아이비피 토큰", R.drawable.ibp))
-            coinInfos.add(CoinInfoCoinone(currencyList.qtcon, "퀴즈톡", R.drawable.qtcon))
-            coinInfos.add(CoinInfoCoinone(currencyList.jst, "저스트", R.drawable.jst))
-            coinInfos.add(CoinInfoCoinone(currencyList.mnr, "미네랄", R.drawable.mnr))
-            coinInfos.add(CoinInfoCoinone(currencyList.trcl, "트리클", R.drawable.trcl))
-            coinInfos.add(CoinInfoCoinone(currencyList.kai, "카르디아체인", R.drawable.kai))
-            coinInfos.add(CoinInfoCoinone(currencyList.comp, "컴파운드", R.drawable.comp))
-            coinInfos.add(CoinInfoCoinone(currencyList.nfup, "엔에프유피", R.drawable.basic))
-            coinInfos.add(CoinInfoCoinone(currencyList.cos, "콘텐토스", R.drawable.cos))
-            coinInfos.add(CoinInfoCoinone(currencyList.six, "식스", R.drawable.six))
-            coinInfos.add(CoinInfoCoinone(currencyList.fet, "페치", R.drawable.fet))
-            coinInfos.add(CoinInfoCoinone(currencyList.bzrx, "비지엑스 프로토콜", R.drawable.bzrx))
-            coinInfos.add(CoinInfoCoinone(currencyList.krt, "테라 KRT", R.drawable.krt))
-            coinInfos.add(CoinInfoCoinone(currencyList.mta, "메타", R.drawable.mta))
+            coinInfos.add(CoinInfoCoinone(currencyList.eth, "ETH / 이더리움", R.drawable.eth))
+            coinInfos.add(CoinInfoCoinone(currencyList.xrp, "XRP / 리플", R.drawable.xrp))
+            coinInfos.add(CoinInfoCoinone(currencyList.bch, "BCH / 비트코인 캐시", R.drawable.bch))
+            coinInfos.add(CoinInfoCoinone(currencyList.eos, "EOS / 이오스", R.drawable.eos))
+            coinInfos.add(CoinInfoCoinone(currencyList.bsv, "BSV / 비트코인사토시비전", R.drawable.bsv))
+            coinInfos.add(CoinInfoCoinone(currencyList.etc, "ETC / 이더리움 클래식", R.drawable.etc))
+            coinInfos.add(CoinInfoCoinone(currencyList.ltc, "LTC / 라이트코인", R.drawable.ltc))
+            coinInfos.add(CoinInfoCoinone(currencyList.prom, "PROM / 프로메테우스", R.drawable.prom))
+            coinInfos.add(CoinInfoCoinone(currencyList.atom, "ATOM / 코스모스아톰", R.drawable.atom))
+            coinInfos.add(CoinInfoCoinone(currencyList.xtz, "XTZ / 테조스", R.drawable.xtz))
+            coinInfos.add(CoinInfoCoinone(currencyList.psc, "PSC / 폴스타코인", R.drawable.basic)) //
+            coinInfos.add(CoinInfoCoinone(currencyList.pci, "PCI / 페이코인", R.drawable.pci))
+            coinInfos.add(CoinInfoCoinone(currencyList.trx, "TRX / 트론", R.drawable.trx))
+            coinInfos.add(CoinInfoCoinone(currencyList.fleta, "FLETA / 플레타", R.drawable.fleta))
+            coinInfos.add(CoinInfoCoinone(currencyList.qtum, "QTUM / 퀀텀", R.drawable.qtum))
+            coinInfos.add(CoinInfoCoinone(currencyList.luna, "LUNA / 루나", R.drawable.luna))
+            coinInfos.add(CoinInfoCoinone(currencyList.knc, "KNC / 카이버", R.drawable.knc))
+            coinInfos.add(CoinInfoCoinone(currencyList.kvi, "KVI / 케이브이아이", R.drawable.basic)) //
+            coinInfos.add(CoinInfoCoinone(currencyList.egg, "EGG / 네스트리", R.drawable.egg))
+            coinInfos.add(CoinInfoCoinone(currencyList.bna, "BNA / 바나나톡", R.drawable.bna))
+            coinInfos.add(CoinInfoCoinone(currencyList.xlm, "XLM / 스텔라루멘", R.drawable.xlm))
+            coinInfos.add(CoinInfoCoinone(currencyList.iota, "IOTA / 아이오타", R.drawable.iota))
+            coinInfos.add(CoinInfoCoinone(currencyList.xpn, "XPN / 판테온X", R.drawable.xpn))
+            coinInfos.add(CoinInfoCoinone(currencyList.gas, "GAS / 가스", R.drawable.gas))
+            coinInfos.add(CoinInfoCoinone(currencyList.ogn, "OGN / 오리진 프로토콜", R.drawable.ogn))
+            coinInfos.add(CoinInfoCoinone(currencyList.ong, "ONG / 온돌로지가스", R.drawable.ong))
+            coinInfos.add(CoinInfoCoinone(currencyList.chz, "CHZ / 칠리즈", R.drawable.chz))
+            coinInfos.add(CoinInfoCoinone(currencyList.data, "DATA / 스트리머", R.drawable.data))
+            coinInfos.add(CoinInfoCoinone(currencyList.soc, "SOC / 소다코인", R.drawable.soc))
+            coinInfos.add(CoinInfoCoinone(currencyList.zil, "ZIL / 질리카", R.drawable.zil))
+            coinInfos.add(CoinInfoCoinone(currencyList.bat, "BAT / 베이직어텐션토큰", R.drawable.bat))
+            coinInfos.add(CoinInfoCoinone(currencyList.zrx, "ZRX / 제로엑스", R.drawable.zrx))
+            coinInfos.add(CoinInfoCoinone(currencyList.pxl, "PXL / 픽션네트워크", R.drawable.pxl))
+            coinInfos.add(CoinInfoCoinone(currencyList.isr, "ISR / 인슈리움", R.drawable.isr))
+            coinInfos.add(CoinInfoCoinone(currencyList.neo, "NEO / 네오", R.drawable.neo))
+            coinInfos.add(CoinInfoCoinone(currencyList.redi, "REDI / 레디", R.drawable.redi))
+            coinInfos.add(CoinInfoCoinone(currencyList.mbl, "MBL / 무비블록", R.drawable.mbl))
+            coinInfos.add(CoinInfoCoinone(currencyList.omg, "OMG / 오미세고", R.drawable.omg))
+            coinInfos.add(CoinInfoCoinone(currencyList.btt, "BTT / 비트토렌트", R.drawable.btt))
+            coinInfos.add(CoinInfoCoinone(currencyList.drm, "DRM / 두드림체인", R.drawable.basic)) //
+            coinInfos.add(CoinInfoCoinone(currencyList.spin, "SPIN / 스핀프로토콜", R.drawable.spin))
+            coinInfos.add(CoinInfoCoinone(currencyList.ankr, "ANKR / 앵커 네크워크", R.drawable.ankr))
+            coinInfos.add(CoinInfoCoinone(currencyList.stpt, "STPT / 에스티피", R.drawable.stpt))
+            coinInfos.add(CoinInfoCoinone(currencyList.ont, "ONT / 온톨로지", R.drawable.ont))
+            coinInfos.add(CoinInfoCoinone(currencyList.matic, "MATIC / 매틱 네트워크", R.drawable.matic))
+            coinInfos.add(CoinInfoCoinone(currencyList.temco, "TEMCO / 템코", R.drawable.temco))
+            coinInfos.add(CoinInfoCoinone(currencyList.ftm, "FTM / 팬텀", R.drawable.ftm))
+            coinInfos.add(CoinInfoCoinone(currencyList.iotx, "IOTX / 아이오텍스", R.drawable.iotx))
+            coinInfos.add(CoinInfoCoinone(currencyList.abl, "ABL / 에어블록", R.drawable.abl))
+            coinInfos.add(CoinInfoCoinone(currencyList.pib, "PIB / 피블", R.drawable.pib))
+            coinInfos.add(CoinInfoCoinone(currencyList.amo, "AMO / 아모코인", R.drawable.amo))
+            coinInfos.add(CoinInfoCoinone(currencyList.troy, "TROY / 트로이", R.drawable.troy))
+            coinInfos.add(CoinInfoCoinone(currencyList.clb, "CLB / 클라우드브릭", R.drawable.clb))
+            coinInfos.add(CoinInfoCoinone(currencyList.orbs, "ORBS / 오브스", R.drawable.orbs))
+            coinInfos.add(CoinInfoCoinone(currencyList.baas, "BAAS / 바스아이디", R.drawable.baas))
+            coinInfos.add(CoinInfoCoinone(currencyList.hint, "HINT / 힌트체인", R.drawable.hint))
+            coinInfos.add(CoinInfoCoinone(currencyList.hibs, "HIBS / 하이블럭스", R.drawable.hibs))
+            coinInfos.add(CoinInfoCoinone(currencyList.dad, "DAD / 다드", R.drawable.dad))
+            coinInfos.add(CoinInfoCoinone(currencyList.uos, "UOS / 울트라", R.drawable.uos))
+            coinInfos.add(CoinInfoCoinone(currencyList.btg, "BTG / 비트코인 골드", R.drawable.btg))
+            coinInfos.add(CoinInfoCoinone(currencyList.arpa, "ARPA / 알파 체인", R.drawable.arpa))
+            coinInfos.add(CoinInfoCoinone(currencyList.axl, "AXL / 엑시얼", R.drawable.axl))
+            coinInfos.add(CoinInfoCoinone(currencyList.hum, "HUM / 휴먼스케이프", R.drawable.hum))
+            coinInfos.add(CoinInfoCoinone(currencyList.ksc, "KSC / 케이스타라이브", R.drawable.ksc))
+            coinInfos.add(CoinInfoCoinone(currencyList.wiken, "WIKEN / 위드", R.drawable.wiken))
+            coinInfos.add(CoinInfoCoinone(currencyList.ftt, "FTT / 에프티엑스 토큰", R.drawable.ftt))
+            coinInfos.add(CoinInfoCoinone(currencyList.obsr, "OBSR / 옵저버", R.drawable.obsr))
+            coinInfos.add(CoinInfoCoinone(currencyList.gom2, "GOM2 / 고머니2", R.drawable.gom2))
+            coinInfos.add(CoinInfoCoinone(currencyList.klay, "KLAY / 클레이튼", R.drawable.klay))
+            coinInfos.add(CoinInfoCoinone(currencyList.kdag, "KDAG / 킹디에이쥐", R.drawable.kdag))
+            coinInfos.add(CoinInfoCoinone(currencyList.isdt, "ISDT / 아이스타더스트", R.drawable.basic))
+            coinInfos.add(CoinInfoCoinone(currencyList.snx, "SNX / 신세틱스 네트워크", R.drawable.snx))
+            coinInfos.add(CoinInfoCoinone(currencyList.dvx, "DVX / 데리벡스", R.drawable.dvx))
+            coinInfos.add(CoinInfoCoinone(currencyList.mch, "MCH / 미콘캐시", R.drawable.mch))
+            coinInfos.add(CoinInfoCoinone(currencyList.exe, "EXE / 8X8 프로토콜", R.drawable.exe))
+            coinInfos.add(CoinInfoCoinone(currencyList.lbxc, "LBXC / 럭스 바이오", R.drawable.lbxc))
+            coinInfos.add(CoinInfoCoinone(currencyList.show, "SHOW / 쇼고", R.drawable.basic))
+            coinInfos.add(CoinInfoCoinone(currencyList.get, "GET / 겟 프로토콜", R.drawable.get))
+            coinInfos.add(CoinInfoCoinone(currencyList.mov, "MOV / 모티브", R.drawable.mov))
+            coinInfos.add(CoinInfoCoinone(currencyList.asm, "ASM / 어셈블 프로토콜", R.drawable.asm))
+            coinInfos.add(CoinInfoCoinone(currencyList.bora, "BORA / 보라", R.drawable.bora))
+            coinInfos.add(CoinInfoCoinone(currencyList.rnx, "RNX / 루넥스", R.drawable.rnx))
+            coinInfos.add(CoinInfoCoinone(currencyList.kava, "KAVA / 카바", R.drawable.kava))
+            coinInfos.add(CoinInfoCoinone(currencyList.tmtg, "TMTG / 더마이다스터치골드", R.drawable.tmtg))
+            coinInfos.add(CoinInfoCoinone(currencyList.ibp, "IBP / 아이비피 토큰", R.drawable.ibp))
+            coinInfos.add(CoinInfoCoinone(currencyList.qtcon, "QTCON / 퀴즈톡", R.drawable.qtcon))
+            coinInfos.add(CoinInfoCoinone(currencyList.jst, "JST / 저스트", R.drawable.jst))
+            coinInfos.add(CoinInfoCoinone(currencyList.mnr, "MNR / 미네랄", R.drawable.mnr))
+            coinInfos.add(CoinInfoCoinone(currencyList.trcl, "TRCL / 트리클", R.drawable.trcl))
+            coinInfos.add(CoinInfoCoinone(currencyList.kai, "KAI / 카르디아체인", R.drawable.kai))
+            coinInfos.add(CoinInfoCoinone(currencyList.comp, "COMP / 컴파운드", R.drawable.comp))
+            coinInfos.add(CoinInfoCoinone(currencyList.nfup, "NFUP / 엔에프유피", R.drawable.basic))
+            coinInfos.add(CoinInfoCoinone(currencyList.cos, "COS / 콘텐토스", R.drawable.cos))
+            coinInfos.add(CoinInfoCoinone(currencyList.six, "SIX / 식스", R.drawable.six))
+            coinInfos.add(CoinInfoCoinone(currencyList.fet, "FET / 페치", R.drawable.fet))
+            coinInfos.add(CoinInfoCoinone(currencyList.bzrx, "BZRX / 비지엑스 프로토콜", R.drawable.bzrx))
+            coinInfos.add(CoinInfoCoinone(currencyList.krt, "KRT / 테라 KRT", R.drawable.krt))
+            coinInfos.add(CoinInfoCoinone(currencyList.mta, "MTA / 메타", R.drawable.mta))
         }
 
         if (URL == bithumbAddress) {
@@ -695,6 +716,8 @@ class ArrayMaker(
             coinInfos.add(CoinInfoBithumb(currencyList.WTC, "WTC / 월튼체인", R.drawable.wtc))
             coinInfos.add(CoinInfoBithumb(currencyList.XEM, "XEM / 넴", R.drawable.xem))
             coinInfos.add(CoinInfoBithumb(currencyList.BHP, "BHP / 비에이치피", R.drawable.bhp))
+
+
         }
 
         if (URL == huobiAddress) {

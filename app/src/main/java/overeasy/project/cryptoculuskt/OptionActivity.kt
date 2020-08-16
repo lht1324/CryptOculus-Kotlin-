@@ -45,10 +45,8 @@ class OptionActivity : AppCompatActivity(), DataTransferOption, TextWatcher {
 
         URL = intent.extras!!.getString("URL")
 
-        var temp: ArrayList<CoinInfo?> = intent.getSerializableExtra("coinInfo") as ArrayList<CoinInfo?>
+        coinInfos = intent.getSerializableExtra("coinInfo") as ArrayList<CoinInfo?>
 
-        for (i in temp.indices)
-            coinInfos.add(temp[i])
         /* if (URL == coinoneAddress) {
             var temp: ArrayList<CoinInfoCoinone> = intent.getSerializableExtra("coinInfosCoinone") as ArrayList<CoinInfoCoinone>
 
@@ -88,12 +86,14 @@ class OptionActivity : AppCompatActivity(), DataTransferOption, TextWatcher {
 
         optionAdapter.sortCoinInfos()
 
-        if (URL == coinoneAddress)
+        /* if (URL == coinoneAddress)
             intent.putExtra("coinInfosCoinone", optionAdapter.coinInfos)
         if (URL == bithumbAddress)
             intent.putExtra("coinInfosBithumb", optionAdapter.coinInfos)
         if (URL == huobiAddress)
-            intent.putExtra("coinInfosHuobi", optionAdapter.coinInfos)
+            intent.putExtra("coinInfosHuobi", optionAdapter.coinInfos) */
+
+        intent.putExtra("coinInfos", optionAdapter.coinInfos)
 
         setResult(2, intent)
         finish()
