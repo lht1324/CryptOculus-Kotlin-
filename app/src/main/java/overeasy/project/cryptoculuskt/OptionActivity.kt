@@ -22,10 +22,10 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class OptionActivity : AppCompatActivity(), DataTransferOption, TextWatcher {
-    var optionAdapter: OptionAdapter = OptionAdapter(this)
-    var recyclerView: RecyclerView? = null
-    var checkedTextView: CheckedTextView = findViewById(R.id.checkedTextView)
-    var editText: EditText = findViewById(R.id.editText)
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var editText: EditText
+    lateinit var checkedTextView: CheckedTextView
+    lateinit var optionAdapter: OptionAdapter
 
     var callback: ItemTouchHelper.Callback? = null
     var itemTouchHelper: ItemTouchHelper? = null
@@ -41,32 +41,16 @@ class OptionActivity : AppCompatActivity(), DataTransferOption, TextWatcher {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_option)
 
+        recyclerView = findViewById(R.id.recyclerView)
+        editText = findViewById(R.id.editText)
+        checkedTextView = findViewById(R.id.checkedTextView)
+        optionAdapter = OptionAdapter(this)
+
         var intent: Intent = intent
 
         URL = intent.extras!!.getString("URL")
 
-        coinInfos = intent.getSerializableExtra("coinInfo") as ArrayList<CoinInfo?>
-
-        /* if (URL == coinoneAddress) {
-            var temp: ArrayList<CoinInfoCoinone> = intent.getSerializableExtra("coinInfosCoinone") as ArrayList<CoinInfoCoinone>
-
-            for (i in temp.indices)
-                coinInfos.add(temp[i])
-        }
-
-        if (URL == bithumbAddress) {
-            var temp: ArrayList<CoinInfoBithumb> = intent.getSerializableExtra("coinInfosBithumb") as ArrayList<CoinInfoBithumb>
-
-            for (i in temp.indices)
-                coinInfos.add(temp[i])
-        }
-
-        if (URL == huobiAddress) {
-            var temp: ArrayList<CoinInfoHuobi> = intent.getSerializableExtra("coinInfosHuobi") as ArrayList<CoinInfoHuobi>
-
-            for (i in temp.indices)
-                coinInfos.add(temp[i])
-        } */
+        coinInfos = intent.getSerializableExtra("coinInfos") as ArrayList<CoinInfo?>
 
         editText.addTextChangedListener(this)
 
@@ -86,13 +70,6 @@ class OptionActivity : AppCompatActivity(), DataTransferOption, TextWatcher {
 
         optionAdapter.sortCoinInfos()
 
-        /* if (URL == coinoneAddress)
-            intent.putExtra("coinInfosCoinone", optionAdapter.coinInfos)
-        if (URL == bithumbAddress)
-            intent.putExtra("coinInfosBithumb", optionAdapter.coinInfos)
-        if (URL == huobiAddress)
-            intent.putExtra("coinInfosHuobi", optionAdapter.coinInfos) */
-
         intent.putExtra("coinInfos", optionAdapter.coinInfos)
 
         setResult(2, intent)
@@ -106,7 +83,7 @@ class OptionActivity : AppCompatActivity(), DataTransferOption, TextWatcher {
 
         optionAdapter.URL = URL!!
 
-        var count: Int = 0
+        var count = 0
 
         for (i in coinInfos.indices) {
             if (coinInfos[i]!!.coinViewCheck) {
@@ -127,100 +104,13 @@ class OptionActivity : AppCompatActivity(), DataTransferOption, TextWatcher {
         }
 
         for (i in coinInfos.indices) {
-            if (!(coinInfos[i] as CoinInfoCoinone).coinViewCheck)
+            if (!coinInfos[i]!!.coinViewCheck)
                 checkedTextView.isChecked = false
-            if ((coinInfos[i] as CoinInfoCoinone).coinViewCheck and (i == coinInfos.size - 1))
+            if (coinInfos[i]!!.coinViewCheck and (i == coinInfos.size - 1))
                 checkedTextView.isChecked = true
 
             optionAdapter.addItem(coinInfos[i]!!)
         }
-
-        /* if (URL == coinoneAddress) {
-            for (i in coinInfos.indices) {
-                if ((coinInfos[i] as CoinInfoCoinone).coinViewCheck) {
-                    if (count != i) {
-                        var temp: CoinInfoCoinone = coinInfos[i] as CoinInfoCoinone
-                        coinInfos.set(i, null)
-
-                        for (j in (i - 1) downTo count)
-                            Collections.swap(coinInfos, j, j + 1)
-
-                        coinInfos[count] = temp
-
-                        count++
-                    }
-                    else
-                        count++
-                }
-            }
-
-            for (i in coinInfos.indices) {
-                if (!(coinInfos[i] as CoinInfoCoinone).coinViewCheck)
-                    checkedTextView.isChecked = false
-                if ((coinInfos[i] as CoinInfoCoinone).coinViewCheck and (i == coinInfos.size - 1))
-                    checkedTextView.isChecked = true
-
-                optionAdapter.addItem(coinInfos[i]!!)
-            }
-        }
-
-        if (URL == bithumbAddress) {
-            for (i in coinInfos.indices) {
-                if ((coinInfos[i] as CoinInfoBithumb).coinViewCheck) {
-                    if (count != i) {
-                        var temp: CoinInfoBithumb = coinInfos[i] as CoinInfoBithumb
-                        coinInfos.set(i, null)
-
-                        for (j in (i - 1) downTo count)
-                            Collections.swap(coinInfos, j, j + 1)
-
-                        coinInfos[count] = temp
-
-                        count++
-                    }
-                    else
-                        count++
-                }
-            }
-
-            for (i in coinInfos.indices) {
-                if (!(coinInfos[i] as CoinInfoBithumb).coinViewCheck)
-                    checkedTextView.isChecked = false
-                if ((coinInfos[i] as CoinInfoBithumb).coinViewCheck and (i == coinInfos.size - 1))
-                    checkedTextView.isChecked = true
-
-                optionAdapter.addItem(coinInfos[i]!!)
-            }
-        }
-
-        if (URL == huobiAddress) {
-            for (i in coinInfos.indices) {
-                if ((coinInfos[i] as CoinInfoHuobi).coinViewCheck) {
-                    if (count != i) {
-                        var temp: CoinInfoHuobi = coinInfos[i] as CoinInfoHuobi
-                        coinInfos.set(i, null)
-
-                        for (j in (i - 1) downTo count)
-                            Collections.swap(coinInfos, j, j + 1)
-
-                        coinInfos[count] = temp
-
-                        count++
-                    }
-                    else
-                        count++
-                }
-            }
-
-            for (i in coinInfos.indices) {
-                if (!(coinInfos[i] as CoinInfoHuobi).coinViewCheck)
-                    checkedTextView.isChecked = false
-                if ((coinInfos[i] as CoinInfoHuobi).coinViewCheck and (i == coinInfos.size - 1))
-                    checkedTextView.isChecked = true
-
-                optionAdapter.addItem(coinInfos[i]!!)
-            }
-        } */
     }
 
     fun init() {

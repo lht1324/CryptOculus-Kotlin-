@@ -29,6 +29,8 @@ import overeasy.project.cryptoculuskt.currencys.CurrencysBithumb
 import overeasy.project.cryptoculuskt.currencys.CurrencysCoinone
 import overeasy.project.cryptoculuskt.currencys.CurrencysHuobi
 import overeasy.project.cryptoculuskt.function.ArrayMaker
+import overeasy.project.cryptoculuskt.function.DataTransferMain
+import overeasy.project.cryptoculuskt.function.DataTransferOption
 import overeasy.project.cryptoculuskt.function.Retrofit2Interface
 import overeasy.project.cryptoculuskt.ticker.TickerFormatBithumb
 import overeasy.project.cryptoculuskt.ticker.TickerFormatHuobi
@@ -40,24 +42,25 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 
-class MainActivity : AppCompatActivity() {
-    //  mContext.restartApp = restartApp // ArrayMaker에 여기 restartApp 바꾸는 거 추가해야 한다. DataTransfer 사용해보자
-    var recyclerView: RecyclerView = findViewById(R.id.recyclerView)
-    var swipeRefreshLayout: SwipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
-    var spinner: Spinner = findViewById(R.id.spinner)
-    var button: Button = findViewById(R.id.button)
+class MainActivity : AppCompatActivity(), DataTransferMain {
+    var recyclerView: RecyclerView? = null
+    var swipeRefreshLayout: SwipeRefreshLayout? = null
+    var spinner: Spinner? = null
+    var button: Button? = null
     var spinnerAdapter: ArrayAdapter<String>? = null
     var adapter: MainAdapter? = null
-    var refreshed = false
+    var refreshedCoinone = false
+    var refreshedBithumb = false
+    var refreshedHuobi = false
     var restartApp = false
     private val sendIntent = 1
     private val getIntent = 2
 
     var spinnerAdapterItems = ArrayList<String>()
-    var coinInfosCoinone: ArrayList<CoinInfoCoinone?> = ArrayList<CoinInfoCoinone?>()
-    var coinInfosBithumb: ArrayList<CoinInfoBithumb?> = ArrayList<CoinInfoBithumb?>()
-    var coinInfosHuobi: ArrayList<CoinInfoHuobi?> = ArrayList<CoinInfoHuobi?>()
     var coinInfos: ArrayList<CoinInfo?> = ArrayList<CoinInfo?>()
+    lateinit var coinViewChecksCoinone: Array<Boolean?>
+    lateinit var coinViewChecksBithumb: Array<Boolean?>
+    lateinit var coinViewChecksHuobi: Array<Boolean?>
 
     var coinoneAddress = "https://api.coinone.co.kr/"
     var bithumbAddress = "https://api.bithumb.com/"
@@ -69,14 +72,21 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        spinner.onItemSelectedListener = object : OnItemSelectedListener {
+        recyclerView = findViewById(R.id.recyclerView)
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
+        spinner = findViewById(R.id.spinner)
+        button = findViewById(R.id.button)
+
+        spinner!!.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
                 val result = StringBuffer()
-                val temp = spinner.getItemAtPosition(position) as String
+                val temp = spinner!!.getItemAtPosition(position) as String
+
                 for (i in temp.indices) {
                     if (temp[i].toInt() in 65 until 122)
                         result.append(temp[i])
                 }
+
                 chartName = result.toString()
             }
 
@@ -85,7 +95,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        button.setOnClickListener {
+        button!!.setOnClickListener {
             var intent = Intent()
 
             if (URL == coinoneAddress)
@@ -98,7 +108,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
         
-        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        recyclerView!!.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         
         var pref = getSharedPreferences("restartCheck", Context.MODE_PRIVATE)
         restartApp = pref.getBoolean("restartApp", false)
@@ -111,12 +121,12 @@ class MainActivity : AppCompatActivity() {
         getData()
         init()
 
-        swipeRefreshLayout.setOnRefreshListener {
+        swipeRefreshLayout!!.setOnRefreshListener {
             
             getData()
             init()
             
-            swipeRefreshLayout.isRefreshing = false
+            swipeRefreshLayout!!.isRefreshing = false
         }
     }
     
@@ -128,7 +138,7 @@ class MainActivity : AppCompatActivity() {
         // position이랑 coinViewCheck잖아?
         // 그냥 coinViewCheck 배열만 만들까?
         // coinInfos는 하나만 써도 되잖아
-        if ((URL == coinoneAddress) and coinInfosCoinone.isNotEmpty()) {
+        /* if ((URL == coinoneAddress) and coinInfosCoinone.isNotEmpty()) {
             pref = getSharedPreferences("saveCoinone", MODE_PRIVATE)
             editor = pref.edit()
 
@@ -152,7 +162,7 @@ class MainActivity : AppCompatActivity() {
         for (i in coinInfos.indices) {
             editor.putInt("${coinInfos[i]!!.coinName} position", i)
             editor.putBoolean(coinInfos[i]!!.coinName, coinInfos[i]!!.coinViewCheck)
-        }
+        } */
 
         editor.commit()
 
@@ -166,9 +176,9 @@ class MainActivity : AppCompatActivity() {
 
         editor.putBoolean("restartApp", true)
         editor.commit()
-        // 상태저장하려면 3개 해야 하는 건가?
-        // 이건 고민 좀 하고 하자
-        // 일단 getData에선 전부 ArrayList<CoinInfo?>로 묶어서 처리한다
+
+        finish()
+        super.onBackPressed()
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
         super.onActivityResult(requestCode, resultCode, intent)
@@ -179,16 +189,35 @@ class MainActivity : AppCompatActivity() {
 
                 URL = intent!!.extras!!.getString("URL")!!
 
-                coinInfos = intent.getSerializableExtra("coinInfos") as ArrayList<CoinInfo?>
+                coinInfos = intent.getSerializableExtra("coinInfos") as ArrayList<CoinInfo?> // 정상
 
-                /* if (URL == coinoneAddress)
-                    coinInfosCoinone = intent.getSerializableExtra("coinInfosCoinone") as ArrayList<CoinInfoCoinone?>
+                // 여기서 계속 초기화해서 그런 거 아냐?
+                if (URL == coinoneAddress) {
+                    refreshedCoinone = true
 
-                if (URL == bithumbAddress)
-                    coinInfosBithumb = intent.getSerializableExtra("coinInfosBithumb") as ArrayList<CoinInfoBithumb?>
+                    coinViewChecksCoinone = arrayOfNulls(coinInfos.size)
 
-                if (URL == huobiAddress)
-                    coinInfosHuobi = intent.getSerializableExtra("coinInfosHuobi") as ArrayList<CoinInfoHuobi?> */
+                    for (i in coinInfos.indices)
+                        coinViewChecksCoinone[i] = coinInfos[i]!!.coinViewCheck
+                }
+
+                if (URL == bithumbAddress) {
+                    refreshedBithumb = true
+
+                    coinViewChecksBithumb = arrayOfNulls(coinInfos.size)
+
+                    for (i in coinInfos.indices)
+                        coinViewChecksBithumb[i] = coinInfos[i]!!.coinViewCheck
+                }
+
+                if (URL == huobiAddress) {
+                    refreshedHuobi = true
+
+                    coinViewChecksHuobi = arrayOfNulls(coinInfos.size)
+
+                    for (i in coinInfos.indices)
+                        coinViewChecksHuobi[i] = coinInfos[i]!!.coinViewCheck
+                }
 
                 getData()
                 init()
@@ -223,15 +252,6 @@ class MainActivity : AppCompatActivity() {
         if (id == R.id.option) {
             var intent = Intent(applicationContext, OptionActivity::class.java)
             intent.putExtra("URL", URL)
-
-            /* if (URL == coinoneAddress)
-                intent.putExtra("coinInfosCoinone", coinInfosCoinone)
-
-            if (URL == bithumbAddress)
-                intent.putExtra("coinInfosBithumb", coinInfosBithumb)
-
-            if (URL == huobiAddress)
-                intent.putExtra("coinInfosHuobi", coinInfosHuobi) */
 
             intent.putExtra("coinInfos", coinInfos)
 
@@ -275,13 +295,29 @@ class MainActivity : AppCompatActivity() {
 
     fun responseProcess(response: String) {
         var gson = Gson()
-        var arrayMaker = ArrayMaker(
-            restartApp,
-            refreshed,
-            coinInfos,
-            URL,
-            this
-        )
+        var arrayMaker = ArrayMaker(restartApp, refreshedCoinone, refreshedBithumb, refreshedHuobi, coinInfos, URL, this, this)
+
+        println("responseProcess is working. refreshedCoinone = $refreshedCoinone, refreshedBithumb = $refreshedBithumb, refreshedHuobi = $refreshedHuobi")
+        if (refreshedCoinone or refreshedBithumb or refreshedHuobi) { // 이거 제대로 안 먹는데?
+            // 빗썸 갔다오니까 refreshedCoinone이 false가 된다
+            // 재밌네
+            // ArrayMaker가 문제네
+            if (URL == coinoneAddress) {
+                for (i in coinInfos.indices)
+                    println("$i. ${coinInfos[i]!!.coinName}'s coinViewCheck = ${coinInfos[i]!!.coinViewCheck}, coinViewChecksCoinone[$i] = ${coinViewChecksCoinone[i]}")
+                arrayMaker.coinViewChecks = coinViewChecksCoinone
+            }
+            if (URL == bithumbAddress) {
+                for (i in coinInfos.indices)
+                    println("$i. ${coinInfos[i]!!.coinName}'s coinViewCheck = ${coinInfos[i]!!.coinViewCheck}, coinViewChecksBithumb[$i] = ${coinViewChecksBithumb[i]}")
+                arrayMaker.coinViewChecks = coinViewChecksBithumb
+            }
+            if (URL == huobiAddress) {
+                for (i in coinInfos.indices)
+                    println("$i. ${coinInfos[i]!!.coinName}'s coinViewCheck = ${coinInfos[i]!!.coinViewCheck}, coinViewChecksHuobi[$i] = ${coinViewChecksHuobi[i]}")
+                arrayMaker.coinViewChecks = coinViewChecksHuobi
+            }
+        }
 
         var currencyList = Currencys()
 
@@ -340,86 +376,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        /* if (URL == coinoneAddress) {
-            var currencyList = gson.fromJson(response, CurrencysCoinone::class.java)
-
-            coinInfosCoinone = arrayMaker.makeArrayCoinone(currencyList)
-
-            for (i in coinInfosCoinone.indices) {
-                if (coinInfosCoinone[i]?.coinData != null && coinInfosCoinone[i]!!.coinViewCheck) {
-                    adapter!!.addItem(coinInfosCoinone[i]!!)
-
-                    var temp = coinInfosCoinone[i]!!.coinName
-                    spinnerAdapter!!.add(temp)
-                }
-            }
-        }
-
-        if (URL == bithumbAddress) {
-            var tickerFormat = gson.fromJson(response, TickerFormatBithumb::class.java)
-
-            coinInfosBithumb = arrayMaker.makeArrayBithumb(tickerFormat.data)
-
-            for (i in coinInfosBithumb.indices) {
-                if (coinInfosBithumb[i]?.coinData != null && coinInfosBithumb[i]!!.coinViewCheck) {
-                    adapter!!.addItem(coinInfosBithumb[i]!!)
-
-                    var temp = coinInfosBithumb[i]!!.coinName
-                    spinnerAdapter!!.add(temp)
-                }
-            }
-        }
-
-        if (URL == huobiAddress) {
-            var tickerFormat = gson.fromJson(response, TickerFormatHuobi::class.java)
-            var tickersHuobi = ArrayList<TickerHuobi?>()
-            var currencysHuobi = CurrencysHuobi()
-
-            for (i in tickerFormat.data.indices) {
-                val ticker = tickerFormat.data[i]!!
-
-                if (ticker.symbol.contains("krw"))
-                    tickersHuobi.add(ticker)
-            }
-
-            for (i in tickersHuobi.indices) {
-                var ticker: TickerHuobi = tickersHuobi[i]!!
-
-                if (ticker.symbol.contains("grs")) currencysHuobi.grs = ticker
-                if (ticker.symbol.contains("xrp")) currencysHuobi.xrp = ticker
-                if (ticker.symbol.contains("eth")) currencysHuobi.eth = ticker
-                if (ticker.symbol.contains("mvl")) currencysHuobi.mvl = ticker
-                if (ticker.symbol.contains("ada")) currencysHuobi.ada = ticker
-                if (ticker.symbol.contains("fit")) currencysHuobi.fit = ticker
-                if (ticker.symbol.contains("bsv")) currencysHuobi.bsv = ticker
-                if (ticker.symbol.contains("btm")) currencysHuobi.btm = ticker
-                if (ticker.symbol.contains("ht")) currencysHuobi.ht = ticker
-                if (ticker.symbol.contains("usdt")) currencysHuobi.usdt = ticker
-                if (ticker.symbol.contains("iost")) currencysHuobi.iost = ticker
-                if (ticker.symbol.contains("ont")) currencysHuobi.ont = ticker
-                if (ticker.symbol.contains("pci")) currencysHuobi.pci = ticker
-                if (ticker.symbol.contains("solve")) currencysHuobi.solve = ticker
-                if (ticker.symbol.contains("uip")) currencysHuobi.uip = ticker
-                if (ticker.symbol.contains("xlm")) currencysHuobi.xlm = ticker
-                if (ticker.symbol.contains("ltc")) currencysHuobi.ltc = ticker
-                if (ticker.symbol.contains("eos")) currencysHuobi.eos = ticker
-                if (ticker.symbol.contains("skm")) currencysHuobi.skm = ticker
-                if (ticker.symbol.contains("btc")) currencysHuobi.btc = ticker
-                if (ticker.symbol.contains("bch")) currencysHuobi.bch = ticker
-                if (ticker.symbol.contains("trx")) currencysHuobi.trx = ticker
-            }
-
-            coinInfosHuobi = arrayMaker.makeArrayHuobi(currencysHuobi)
-
-            for (i in coinInfosHuobi.indices) {
-                if (coinInfosHuobi[i]!!.coinData != null && coinInfosHuobi[i]!!.coinViewCheck) {
-                    adapter!!.addItem(coinInfosHuobi[i]!!)
-
-                    spinnerAdapter!!.add(coinInfosHuobi[i]!!.coinName)
-                }
-            }
-        } */
-
         adapter!!.notifyDataSetChanged()
         spinnerAdapter!!.notifyDataSetChanged()
     }
@@ -440,8 +396,21 @@ class MainActivity : AppCompatActivity() {
             supportActionBar!!.title = "Huobi"
         }
 
-        spinner.adapter = spinnerAdapter
-        recyclerView.adapter  = adapter
+        spinner!!.adapter = spinnerAdapter
+        recyclerView!!.adapter  = adapter
+    }
+
+    override fun changeRestartApp(restartApp: Boolean) {
+        this.restartApp = restartApp
+    }
+
+    override fun changeRefreshed(refreshed: Boolean) {
+        if (URL == coinoneAddress)
+            this.refreshedCoinone = refreshed
+        if (URL == bithumbAddress)
+            this.refreshedBithumb = refreshed
+        if (URL == huobiAddress)
+            this.refreshedHuobi = refreshed
     }
 
     private fun println(data: String) {

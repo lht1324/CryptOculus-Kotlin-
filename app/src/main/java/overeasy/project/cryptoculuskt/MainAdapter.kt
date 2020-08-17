@@ -25,18 +25,25 @@ class MainAdapter : RecyclerView.Adapter<MainAdapter.ViewHolder>() {
     var URL: String = coinoneAddress
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var imageView: ImageView? = null
-        var textView: TextView? = null
-        var textView2: TextView? = null
-        var textView3: TextView? = null
-        var textView4: TextView? = null
-        var textView5: TextView? = null
-        var textView6: TextView? = null
-        var textView7: TextView? = null
+        private var imageView: ImageView = itemView.findViewById(R.id.imageView)
+        private var textView: TextView = itemView.findViewById(R.id.textView)
+        private var textView2: TextView = itemView.findViewById(R.id.textView2)
+        private var textView3: TextView = itemView.findViewById(R.id.textView3)
+        private var textView4: TextView = itemView.findViewById(R.id.textView4)
+        private var textView5: TextView = itemView.findViewById(R.id.textView5)
+        private var textView6: TextView = itemView.findViewById(R.id.textView6)
+        private var textView7: TextView = itemView.findViewById(R.id.textView7)
 
         var formatter: DecimalFormat = DecimalFormat("###,###.##")
 
         fun setItem(coinInfo: CoinInfo) {
+            if (coinInfo == null)
+                println("coinInfo is Null")
+            if (imageView == null)
+                println("imageView is null")
+            if (coinInfo.coinImageIndex == null)
+                println("coinInfo.coinImageIndex is null")
+
             imageView!!.setImageResource(coinInfo.coinImageIndex)
             textView!!.text = coinInfo.coinName
 
@@ -76,6 +83,7 @@ class MainAdapter : RecyclerView.Adapter<MainAdapter.ViewHolder>() {
                 textView7!!.text = "저가 : " + formatter.format(ticker!!.low.toDouble()) + "원"
             }
         }
+
         /* fun setItemCoinone(coinInfo: CoinInfoCoinone) {
             imageView!!.setImageResource(coinInfo.coinImageIndex)
             textView!!.text = "${coinInfo.coinData!!.currency!!.toUpperCase()} / ${coinInfo.coinName}"
