@@ -18,71 +18,63 @@ import java.lang.IndexOutOfBoundsException
 import java.util.*
 
 class ArrayMaker(
-    private var restartApp: Boolean,
-    private var refreshedCoinone: Boolean,
-    private var refreshedBithumb: Boolean,
-    private var refreshedHuobi: Boolean,
-    private var coinInfosInput: ArrayList<CoinInfo?>,
-    private var URL: String,
     private var mContext: Context,
     private var mCallback: DataTransferMain) {
 
-    lateinit var coinViewChecks: Array<Boolean?>
+    lateinit var coinInfosInput: ArrayList<CoinInfo?>
+    var restartApp: Boolean = false
+    var refreshed = false
+
     var coinoneAddress = "https://api.coinone.co.kr/"
     var bithumbAddress = "https://api.bithumb.com/"
     var huobiAddress = "https://api-cloud.huobi.co.kr/"
+    var URL: String = coinoneAddress
 
     fun makeArray(currencyList: Currencys) : ArrayList<CoinInfo?> {
-        var coinInfos: ArrayList<CoinInfo?> = ArrayList<CoinInfo?>()
-        var pref: SharedPreferences = mContext.getSharedPreferences("saveCoinone", MODE_PRIVATE)
-        var editor = pref.edit()
-        // 통합 작업 시작
-        if (URL == coinoneAddress)
-            pref = mContext.getSharedPreferences("saveCoinone", MODE_PRIVATE)
-
-        if (URL == bithumbAddress)
-            pref = mContext.getSharedPreferences("saveBithumb", MODE_PRIVATE)
-
-        if (URL == huobiAddress)
-            pref = mContext.getSharedPreferences("saveHuobi", MODE_PRIVATE)
+        lateinit var coinInfos: ArrayList<CoinInfo?>
+        var pref: SharedPreferences = mContext.getSharedPreferences("coinInfosSave", MODE_PRIVATE)
 
         coinInfos = makeCoinInfos(currencyList)
 
         if (restartApp) {
-            var getPositions = arrayOfNulls<Int>(coinInfos.size)
-            var temp: ArrayList<CoinInfo?> = ArrayList<CoinInfo?>()
+            var positions = arrayOfNulls<Int>(coinInfos.size)
+            var temp = ArrayList<CoinInfo?>()
 
-            for (i in coinInfos.indices) { // temp를 coinInfos의 크기 만큼의 ArrayList로 만든다
-                getPositions[i] = pref.getInt("${coinInfos[i]?.coinName} position", 0)!!
-                temp.add(null)
+            for (i in coinInfos.indices) {
+                try {
+                    if (URL == coinoneAddress) {
+                        coinInfos[i]!!.coinViewCheck = pref.getBoolean("${coinInfos[i]!!.coinName}'s coinViewCheck in coinInfosCoinone", true)
+                        positions[i] = pref.getInt("${coinInfos[i]!!.coinName}'s position in coinInfosCoinone", 0)
+                        temp.add(null)
+                    }
+                    if (URL == bithumbAddress) {
+                        coinInfos[i]!!.coinViewCheck = pref.getBoolean("${coinInfos[i]!!.coinName}'s coinViewCheck in coinInfosBithumb", true)
+                        positions[i] = pref.getInt("${coinInfos[i]!!.coinName}'s position in coinInfosBithumb", 0)
+                        temp.add(null)
+                    }
+                    if (URL == huobiAddress) {
+                        coinInfos[i]!!.coinViewCheck = pref.getBoolean("${coinInfos[i]!!.coinName}'s coinViewCheck in coinInfosHuobi", true)
+                        positions[i] = pref.getInt("${coinInfos[i]!!.coinName}'s position in coinInfosHuobi", 0)
+                        temp.add(null)
+                    }
+                } catch(e: IndexOutOfBoundsException) {
+                    break
+                }
             }
 
             for (i in coinInfos.indices) // temp의 각 위치에 coinInfos의 원소를 넣는다
-                temp[getPositions[i]!!] = coinInfos[i]
+                temp[positions[i]!!] = coinInfos[i]
 
             coinInfos = temp
 
-            for (i in coinInfos.indices)
-                coinInfos[i]!!.coinViewCheck = pref.getBoolean(coinInfos[i]!!.coinName, true)
-
-            pref = mContext.getSharedPreferences("saveCoinone", MODE_PRIVATE)
-            val isEmptyCoinone = pref.getBoolean("isEmptyCoinone", true)
-
-            pref = mContext.getSharedPreferences("saveBithumb", MODE_PRIVATE)
-            val isEmptyBithumb = pref.getBoolean("isEmptyBithumb", true)
-
-            pref = mContext.getSharedPreferences("saveHuobi", MODE_PRIVATE)
-            val isEmptyHuobi = pref.getBoolean("isEmptyHuobi", true)
-
-            if (!isEmptyCoinone and !isEmptyBithumb and !isEmptyHuobi)
+            if (!mCallback.isEmptyCoinone() && !mCallback.isEmptyBithumb() && !mCallback.isEmptyHuobi()) {
+                restartApp = false
                 mCallback.changeRestartApp(false)
-
+            }
         }
 
-        // onBackPressed랑 onCreate에서만 val로 ArrayList<CoinInfo?> 만들어서 대입해버릴까?
-        // ArrayList를 임시로 만들어서 거기다만 대입시키면 변수 하나로도 충분하지 않아?
-        // var coinInfosBithumb = coinInfosInput as ArrayList<CoinInfoBithumb>
-        if (((URL == coinoneAddress) and refreshedCoinone) or ((URL == bithumbAddress) and refreshedBithumb) or ((URL == huobiAddress) and refreshedHuobi)) {
+        if (refreshed) {
+            println("Condition statement (refreshed) is working")
             for (i in coinInfos.indices) {
                 val temp1 = coinInfosInput[i]!!.coinName
                 val temp2 = coinInfos[i]!!.coinName
@@ -95,47 +87,12 @@ class ArrayMaker(
                 }
             }
 
-            /* println("URL = $URL, refreshedCoinone = $refreshedCoinone, refreshedBithumb = $refreshedBithumb, refreshedHuobi = $refreshedHuobi")
-            for (i in coinInfos.indices)
-                println("$i. ${coinInfos[i]!!.coinName}'s coinViewCheck = ${coinViewChecks[i]!!}") */
-            for (i in coinInfos.indices)
-                coinInfos[i]!!.coinViewCheck = coinViewChecks[i]!!
+            for (i in coinInfos.indices) // 순서 변경 후
+                coinInfos[i]!!.coinViewCheck = coinInfosInput[i]!!.coinViewCheck
         }
 
-        mCallback.changeRefreshed(false)
-
-        if (URL == coinoneAddress)
-            pref = mContext.getSharedPreferences("saveCoinone", MODE_PRIVATE)
-
-        if (URL == bithumbAddress)
-            pref = mContext.getSharedPreferences("saveBithumb", MODE_PRIVATE)
-
-        if (URL == huobiAddress)
-            pref = mContext.getSharedPreferences("saveHuobi", MODE_PRIVATE)
-
-        editor = pref.edit()
-
-        for (i in coinInfos.indices) {
-            editor.putInt("${coinInfos[i]!!.coinName} position", i)
-            editor.putBoolean(coinInfos[i]!!.coinName, coinInfos[i]!!.coinViewCheck)
-        }
-
+        mCallback.changeCoinInfos(coinInfos)
         return coinInfos
-    }
-
-    fun isEmpty(something: Any?): Boolean {
-        if (something == null)
-            return true
-        if (something is Map<*, *>)
-            return (something as Map<*, *>).isEmpty()
-        if (something is Array<*>)
-            return ((something as Array<Any?>).size == 0)
-
-        return false
-    }
-
-    private fun println(data: String) {
-        Log.d("ArrayMaker", data)
     }
 
     private fun makeCoinInfos(currencysInput: Currencys): ArrayList<CoinInfo?> {
@@ -345,8 +302,6 @@ class ArrayMaker(
             coinInfos.add(CoinInfoBithumb(currencyList.WTC, "WTC / 월튼체인", R.drawable.wtc))
             coinInfos.add(CoinInfoBithumb(currencyList.XEM, "XEM / 넴", R.drawable.xem))
             coinInfos.add(CoinInfoBithumb(currencyList.BHP, "BHP / 비에이치피", R.drawable.bhp))
-
-
         }
 
         if (URL == huobiAddress) {
@@ -388,5 +343,9 @@ class ArrayMaker(
         }
 
         return coinInfos
+    }
+
+    private fun println(data: String) {
+        Log.d("ArrayMaker", data)
     }
 }

@@ -50,7 +50,7 @@ class OptionActivity : AppCompatActivity(), DataTransferOption, TextWatcher {
 
         URL = intent.extras!!.getString("URL")
 
-        coinInfos = intent.getSerializableExtra("coinInfos") as ArrayList<CoinInfo?>
+        coinInfos = intent.getSerializableExtra("optionAdapterItems") as ArrayList<CoinInfo?>
 
         editText.addTextChangedListener(this)
 
@@ -70,7 +70,7 @@ class OptionActivity : AppCompatActivity(), DataTransferOption, TextWatcher {
 
         optionAdapter.sortCoinInfos()
 
-        intent.putExtra("coinInfos", optionAdapter.coinInfos)
+        intent.putExtra("mainAdapterItems", optionAdapter.coinInfos)
 
         setResult(2, intent)
         finish()
@@ -80,8 +80,6 @@ class OptionActivity : AppCompatActivity(), DataTransferOption, TextWatcher {
     fun setData() {
         callback = ItemTouchHelperCallback(optionAdapter)
         itemTouchHelper = ItemTouchHelper(callback!!)
-
-        optionAdapter.URL = URL!!
 
         var count = 0
 
@@ -106,7 +104,7 @@ class OptionActivity : AppCompatActivity(), DataTransferOption, TextWatcher {
         for (i in coinInfos.indices) {
             if (!coinInfos[i]!!.coinViewCheck)
                 checkedTextView.isChecked = false
-            if (coinInfos[i]!!.coinViewCheck and (i == coinInfos.size - 1))
+            if (coinInfos[i]!!.coinViewCheck && (i == coinInfos.size - 1))
                 checkedTextView.isChecked = true
 
             optionAdapter.addItem(coinInfos[i]!!)
@@ -123,11 +121,11 @@ class OptionActivity : AppCompatActivity(), DataTransferOption, TextWatcher {
             supportActionBar!!.setBackgroundDrawable(ColorDrawable(0xFF0079FE.toInt()))
             supportActionBar!!.title = "Coinone"
         }
-        else if (URL == bithumbAddress) {
+        if (URL == bithumbAddress) {
             supportActionBar!!.setBackgroundDrawable(ColorDrawable(0xFFF37321.toInt()))
             supportActionBar!!.title = "Bithumb"
         }
-        else {
+        if (URL == huobiAddress) {
             supportActionBar!!.setBackgroundDrawable(ColorDrawable(0xFF1C2143.toInt()))
             supportActionBar!!.title = "Huobi"
         }

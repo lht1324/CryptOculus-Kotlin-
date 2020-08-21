@@ -23,12 +23,7 @@ class OptionAdapter(private var mCallback: DataTransferOption) : RecyclerView.Ad
     var filteredCoinInfos: ArrayList<CoinInfo?> = ArrayList<CoinInfo?>()
     var unFilteredCoinInfos: ArrayList<CoinInfo?> = ArrayList<CoinInfo?>()
 
-    var coinoneAddress = "https://api.coinone.co.kr/"
-    var bithumbAddress = "https://api.bithumb.com/"
-    var huobiAddress = "https://api-cloud.huobi.co.kr/"
-    var URL = coinoneAddress
-
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var imageView: ImageView = itemView.findViewById(R.id.imageView)
         var checkedTextView: CheckedTextView = itemView.findViewById(R.id.checkedTextView)
 
@@ -69,7 +64,7 @@ class OptionAdapter(private var mCallback: DataTransferOption) : RecyclerView.Ad
                 for (i in filteredCoinInfos.indices) {
                     if (!filteredCoinInfos[i]!!.coinViewCheck)
                         break
-                    if ((i == filteredCoinInfos.size - 1) and filteredCoinInfos[i]!!.coinViewCheck)
+                    if ((i == filteredCoinInfos.size - 1) && filteredCoinInfos[i]!!.coinViewCheck)
                         mCallback.changeSelectAll(true)
                 }
             }
@@ -138,12 +133,7 @@ class OptionAdapter(private var mCallback: DataTransferOption) : RecyclerView.Ad
 
                     for (i in unFilteredCoinInfos.indices) {
                         var coinInfo = unFilteredCoinInfos[i]
-                        var temp = ""
-
-                        if (URL == coinoneAddress)
-                            temp = "${(coinInfo!!.coinData as TickerCoinone)!!.currency.toUpperCase()} / ${coinInfo!!.coinName}"
-                        else
-                            temp = coinInfo!!.coinName
+                        var temp = coinInfo!!.coinName
 
                         if (temp.toLowerCase().contains(charString.toLowerCase()))
                             filteringList.add(unFilteredCoinInfos[i])
@@ -202,7 +192,7 @@ class OptionAdapter(private var mCallback: DataTransferOption) : RecyclerView.Ad
                 Collections.swap(coinInfos, i, i - 1)
             }
         }
-        notifyDataSetChanged()
+        notifyItemMoved(fromPosition, toPosition)
         return true
     }
 

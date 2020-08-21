@@ -8,9 +8,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import overeasy.project.cryptoculuskt.coinInfo.CoinInfo
-import overeasy.project.cryptoculuskt.coinInfo.CoinInfoBithumb
-import overeasy.project.cryptoculuskt.coinInfo.CoinInfoCoinone
-import overeasy.project.cryptoculuskt.coinInfo.CoinInfoHuobi
 import overeasy.project.cryptoculuskt.ticker.TickerBithumb
 import overeasy.project.cryptoculuskt.ticker.TickerCoinone
 import overeasy.project.cryptoculuskt.ticker.TickerHuobi
