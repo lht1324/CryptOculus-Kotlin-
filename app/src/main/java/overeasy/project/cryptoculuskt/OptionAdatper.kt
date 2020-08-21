@@ -19,9 +19,9 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class OptionAdapter(private var mCallback: DataTransferOption) : RecyclerView.Adapter<OptionAdapter.ViewHolder>(), ItemTouchHelperCallback.ItemTouchHelperAdapter  {
-    var coinInfos: ArrayList<CoinInfo?> = ArrayList<CoinInfo?>()
-    var filteredCoinInfos: ArrayList<CoinInfo?> = ArrayList<CoinInfo?>()
-    var unFilteredCoinInfos: ArrayList<CoinInfo?> = ArrayList<CoinInfo?>()
+    var coinInfos = ArrayList<CoinInfo?>()
+    var filteredCoinInfos = ArrayList<CoinInfo?>()
+    var unFilteredCoinInfos = ArrayList<CoinInfo?>()
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var imageView: ImageView = itemView.findViewById(R.id.imageView)
@@ -127,7 +127,7 @@ class OptionAdapter(private var mCallback: DataTransferOption) : RecyclerView.Ad
                     filteredCoinInfos = unFilteredCoinInfos
 
                 else {
-                    var filteringList: ArrayList<CoinInfo?> = ArrayList<CoinInfo?>()
+                    var filteringList = ArrayList<CoinInfo?>()
 
                     var count: Int = 0
 
@@ -178,8 +178,6 @@ class OptionAdapter(private var mCallback: DataTransferOption) : RecyclerView.Ad
     }
 
     override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
-        // 순서 변경할 때 한 칸 움직이고 다음 칸으로 나갈 수가 없다
-        // 즉 한 칸 씩만 나갈 수 있다
         if (fromPosition < toPosition) {
             for (i in fromPosition until toPosition) {
                 Collections.swap(filteredCoinInfos, i, i + 1)

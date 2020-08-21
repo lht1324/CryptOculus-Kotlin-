@@ -80,69 +80,16 @@ class MainAdapter : RecyclerView.Adapter<MainAdapter.ViewHolder>() {
                 textView7!!.text = "저가 : " + formatter.format(ticker!!.low.toDouble()) + "원"
             }
         }
-
-        /* fun setItemCoinone(coinInfo: CoinInfoCoinone) {
-            imageView!!.setImageResource(coinInfo.coinImageIndex)
-            textView!!.text = "${coinInfo.coinData!!.currency!!.toUpperCase()} / ${coinInfo.coinName}"
-
-            textView2!!.text = "현재가 : " + formatter.format(coinInfo.coinData!!.last.toDouble())
-            textView3!!.text = "거래량 : " + formatter.format(coinInfo.coinData!!.volume.toDouble())
-
-            textView4!!.text = "시가 : " + formatter.format(coinInfo.coinData!!.first.toDouble())
-            textView5!!.text = "종가 : " + formatter.format(coinInfo.coinData!!.last.toDouble())
-            textView6!!.text = "고가 : " + formatter.format(coinInfo.coinData!!.high.toDouble())
-            textView7!!.text = "저가 : " + formatter.format(coinInfo.coinData!!.low.toDouble())
-        }
-
-        fun setItemBithumb(coinInfo: CoinInfoBithumb) {
-            imageView!!.setImageResource(coinInfo.coinImageIndex)
-            textView!!.text = coinInfo.coinName
-
-            textView2!!.text = "현재가 : " + formatter.format(coinInfo.coinData!!.closing_price.toDouble()) + "원"
-            textView3!!.text = "거래량 : " + formatter.format(coinInfo.coinData!!.units_traded.toDouble())
-
-            textView4!!.text = "시가 : " + formatter.format(coinInfo.coinData!!.opening_price.toDouble()) + "원"
-            textView5!!.text = "종가 : " + formatter.format(coinInfo.coinData!!.closing_price.toDouble()) + "원"
-            textView6!!.text = "고가 : " + formatter.format(coinInfo.coinData!!.max_price.toDouble()) + "원"
-            textView7!!.text = "저가 : " + formatter.format(coinInfo.coinData!!.min_price.toDouble()) + "원"
-        }
-
-        fun setItemHuobi(coinInfo: CoinInfoHuobi) {
-            imageView!!.setImageResource(coinInfo.coinImageIndex)
-            textView!!.text = coinInfo.coinName
-
-            textView2!!.text = "현재가 : " + formatter.format(coinInfo.coinData!!.close.toDouble()) + "원"
-            textView3!!.text = "거래량 : " + formatter.format(coinInfo.coinData!!.amount.toDouble())
-
-            textView4!!.text = "시가 : " + formatter.format(coinInfo.coinData!!.open.toDouble()) + "원"
-            textView5!!.text = "종가 : " + formatter.format(coinInfo.coinData!!.close.toDouble()) + "원"
-            textView6!!.text = "고가 : " + formatter.format(coinInfo.coinData!!.high.toDouble()) + "원"
-            textView7!!.text = "저가 : " + formatter.format(coinInfo.coinData!!.low.toDouble()) + "원"
-        } */
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
         var inflater: LayoutInflater = LayoutInflater.from(viewGroup.getContext())
-        /* var itemView: View = inflater.inflate(R.layout.coin_item_coinone, viewGroup, false)
-
-        if (URL == coinoneAddress)
-            itemView = inflater.inflate(R.layout.coin_item_coinone, viewGroup, false)
-        if (URL == bithumbAddress)
-            itemView = inflater.inflate(R.layout.coin_item_bithumb, viewGroup, false)
-        if (URL == huobiAddress)
-            itemView = inflater.inflate(R.layout.coin_item_huobi, viewGroup, false) */
 
         return ViewHolder(inflater.inflate(R.layout.coin_item, viewGroup, false))
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         viewHolder.setItem(coinInfos[position])
-        /* if (URL == coinoneAddress)
-            viewHolder.setItemCoinone(coinInfos.get(position) as CoinInfoCoinone)
-        if (URL == bithumbAddress)
-            viewHolder.setItemBithumb(coinInfos.get(position) as CoinInfoBithumb)
-        if (URL == huobiAddress)
-            viewHolder.setItemHuobi(coinInfos.get(position) as CoinInfoHuobi) */
     }
 
     override fun getItemCount(): Int {

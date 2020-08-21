@@ -30,7 +30,7 @@ class OptionActivity : AppCompatActivity(), DataTransferOption, TextWatcher {
     var callback: ItemTouchHelper.Callback? = null
     var itemTouchHelper: ItemTouchHelper? = null
 
-    var coinInfos: ArrayList<CoinInfo?> = ArrayList<CoinInfo?>()
+    var coinInfos = ArrayList<CoinInfo?>()
 
     var coinoneAddress = "https://api.coinone.co.kr/"
     var bithumbAddress = "https://api.bithumb.com/"
