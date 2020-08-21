@@ -34,7 +34,7 @@ class OptionAdapter(private var mCallback: DataTransferOption) : RecyclerView.Ad
         }
     }
 
-    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): OptionAdapter.ViewHolder {
+    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
         var inflater: LayoutInflater = LayoutInflater.from(viewGroup.getContext())
         var itemView: View = inflater.inflate(R.layout.option_item, viewGroup, false)
 
