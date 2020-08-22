@@ -36,10 +36,6 @@ class ArrayMaker(
 
         coinInfos = makeCoinInfos(currencyList)
 
-        for (i in coinInfos.indices)
-            if (coinInfos[i]!!.coinData == null)
-                println("coinInfos[$i] is null")
-        println("restartApp = $restartApp, refreshed = $refreshed")
         if (restartApp) {
             var positions = arrayOfNulls<Int>(coinInfos.size)
             var temp = ArrayList<CoinInfo?>()
@@ -88,7 +84,6 @@ class ArrayMaker(
         }
 
         if (refreshed) {
-            println("Condition statement (refreshed) is working")
             for (i in coinInfos.indices) {
                 val temp1 = coinInfosInput[i]!!.coinName
                 val temp2 = coinInfos[i]!!.coinName

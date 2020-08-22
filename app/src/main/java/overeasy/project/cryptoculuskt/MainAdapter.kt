@@ -12,6 +12,7 @@ import overeasy.project.cryptoculuskt.ticker.TickerBithumb
 import overeasy.project.cryptoculuskt.ticker.TickerCoinone
 import overeasy.project.cryptoculuskt.ticker.TickerHuobi
 import java.text.DecimalFormat
+import kotlin.math.roundToInt
 
 class MainAdapter : RecyclerView.Adapter<MainAdapter.ViewHolder>() {
     var coinInfos: ArrayList<CoinInfo> = ArrayList<CoinInfo>()
@@ -31,23 +32,18 @@ class MainAdapter : RecyclerView.Adapter<MainAdapter.ViewHolder>() {
         private var textView6: TextView = itemView.findViewById(R.id.textView6)
         private var textView7: TextView = itemView.findViewById(R.id.textView7)
 
-        var formatter: DecimalFormat = DecimalFormat("###,###.##")
+        private lateinit var formatter: DecimalFormat
 
         fun setItem(coinInfo: CoinInfo) {
-            if (coinInfo == null)
-                println("coinInfo is Null")
-            if (imageView == null)
-                println("imageView is null")
-            if (coinInfo.coinImageIndex == null)
-                println("coinInfo.coinImageIndex is null")
-
             imageView!!.setImageResource(coinInfo.coinImageIndex)
             textView!!.text = coinInfo.coinName
 
             if (URL == coinoneAddress) {
                 var ticker = coinInfo.coinData as TickerCoinone
 
-                textView2!!.text = "현재가 : " + formatter.format(ticker!!.last.toDouble())
+                formatter = if (ticker!!.last.toDouble() - ticker!!.last.toDouble().roundToInt() != 0.0) DecimalFormat("###,##0.00") else DecimalFormat("###,###")
+
+                textView2!!.text = "현재가 : " + formatter.format(ticker!!.last.toDouble()) + "원"
                 textView3!!.text = "거래량 : " + formatter.format(ticker!!.volume.toDouble())
 
                 textView4!!.text = "시가 : " + formatter.format(ticker!!.first.toDouble())
@@ -58,6 +54,8 @@ class MainAdapter : RecyclerView.Adapter<MainAdapter.ViewHolder>() {
 
             if (URL == bithumbAddress) {
                 var ticker = coinInfo.coinData as TickerBithumb
+
+                formatter = if (ticker!!.closing_price.toDouble() - ticker!!.closing_price.toDouble().roundToInt() != 0.0) DecimalFormat("###,##0.00") else DecimalFormat("###,###")
 
                 textView2!!.text = "현재가 : " + formatter.format(ticker!!.closing_price.toDouble()) + "원"
                 textView3!!.text = "거래량 : " + formatter.format(ticker!!.units_traded.toDouble())
@@ -70,6 +68,8 @@ class MainAdapter : RecyclerView.Adapter<MainAdapter.ViewHolder>() {
 
             if (URL == huobiAddress) {
                 var ticker = coinInfo.coinData as TickerHuobi
+
+                formatter = if (ticker!!.close.toDouble() - ticker!!.close.toDouble().roundToInt() != 0.0) DecimalFormat("###,##0.00") else DecimalFormat("###,###")
 
                 textView2!!.text = "현재가 : " + formatter.format(ticker!!.close.toDouble()) + "원"
                 textView3!!.text = "거래량 : " + formatter.format(ticker!!.amount.toDouble())
