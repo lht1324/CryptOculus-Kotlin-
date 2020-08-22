@@ -134,19 +134,38 @@ class MainActivity : AppCompatActivity(), DataTransferMain {
         var pref: SharedPreferences = getSharedPreferences("coinInfosSave", MODE_PRIVATE)
         var editor: SharedPreferences.Editor = pref.edit()
 
-        for (i in coinInfosCoinone.indices) {
-            editor.putBoolean("${coinInfosCoinone[i]!!.coinName}'s coinViewCheck in coinInfosCoinone", coinInfosCoinone[i]!!.coinViewCheck)
-            editor.putInt("${coinInfosCoinone[i]!!.coinName}'s position in coinInfosCoinone", i)
+        editor.putBoolean("isNotEmptyCoinone", coinInfosCoinone.isNotEmpty())
+        editor.putBoolean("isNotEmptyBithumb", coinInfosBithumb.isNotEmpty())
+        editor.putBoolean("isNotEmptyHuobi", coinInfosHuobi.isNotEmpty())
+
+        if (coinInfosCoinone.isNotEmpty()) {
+            for (i in coinInfosCoinone.indices) {
+                editor.putBoolean(
+                    "${coinInfosCoinone[i]!!.coinName}'s coinViewCheck in coinInfosCoinone",
+                    coinInfosCoinone[i]!!.coinViewCheck
+                )
+                editor.putInt("${coinInfosCoinone[i]!!.coinName}'s position in coinInfosCoinone", i)
+            }
         }
 
-        for (i in coinInfosBithumb.indices) {
-            editor.putBoolean("${coinInfosBithumb[i]!!.coinName}'s coinViewCheck in coinInfosBithumb", coinInfosBithumb[i]!!.coinViewCheck)
-            editor.putInt("${coinInfosBithumb[i]!!.coinName}'s position in coinInfosBithumb", i)
+        if (coinInfosBithumb.isNotEmpty()) {
+            for (i in coinInfosBithumb.indices) {
+                editor.putBoolean(
+                    "${coinInfosBithumb[i]!!.coinName}'s coinViewCheck in coinInfosBithumb",
+                    coinInfosBithumb[i]!!.coinViewCheck
+                )
+                editor.putInt("${coinInfosBithumb[i]!!.coinName}'s position in coinInfosBithumb", i)
+            }
         }
 
-        for (i in coinInfosHuobi.indices) {
-            editor.putBoolean("${coinInfosHuobi[i]!!.coinName}'s coinViewCheck in coinInfosHuobi", coinInfosHuobi[i]!!.coinViewCheck)
-            editor.putInt("${coinInfosHuobi[i]!!.coinName}'s position in coinInfosHuobi", i)
+        if (coinInfosHuobi.isNotEmpty()) {
+            for (i in coinInfosHuobi.indices) {
+                editor.putBoolean(
+                    "${coinInfosHuobi[i]!!.coinName}'s coinViewCheck in coinInfosHuobi",
+                    coinInfosHuobi[i]!!.coinViewCheck
+                )
+                editor.putInt("${coinInfosHuobi[i]!!.coinName}'s position in coinInfosHuobi", i)
+            }
         }
 
         editor.commit()
@@ -323,7 +342,7 @@ class MainActivity : AppCompatActivity(), DataTransferMain {
             }
         }
 
-        mainAdapterItems = arrayMaker.makeArray(currencyList)
+        mainAdapterItems = arrayMaker.makeArray(currencyList) // 나오는 건 정상인데...
 
         for (i in mainAdapterItems.indices) {
             if (mainAdapterItems[i]!!.coinViewCheck) {

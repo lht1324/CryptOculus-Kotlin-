@@ -36,36 +36,50 @@ class ArrayMaker(
 
         coinInfos = makeCoinInfos(currencyList)
 
+        for (i in coinInfos.indices)
+            if (coinInfos[i]!!.coinData == null)
+                println("coinInfos[$i] is null")
+        println("restartApp = $restartApp, refreshed = $refreshed")
         if (restartApp) {
             var positions = arrayOfNulls<Int>(coinInfos.size)
             var temp = ArrayList<CoinInfo?>()
 
-            for (i in coinInfos.indices) {
-                try {
-                    if (URL == coinoneAddress) {
+            if (URL == coinoneAddress && pref.getBoolean("isNotEmptyCoinone", false)) {
+                for (i in coinInfos.indices) {
+                    try {
                         coinInfos[i]!!.coinViewCheck = pref.getBoolean("${coinInfos[i]!!.coinName}'s coinViewCheck in coinInfosCoinone", true)
                         positions[i] = pref.getInt("${coinInfos[i]!!.coinName}'s position in coinInfosCoinone", 0)
                         temp.add(null)
+                    } catch (e: IndexOutOfBoundsException) {
+                        break
                     }
-                    if (URL == bithumbAddress) {
+                }
+            }
+            if (URL == bithumbAddress && pref.getBoolean("isNotEmptyBithumb", false)) {
+                for (i in coinInfos.indices) {
+                    try {
                         coinInfos[i]!!.coinViewCheck = pref.getBoolean("${coinInfos[i]!!.coinName}'s coinViewCheck in coinInfosBithumb", true)
                         positions[i] = pref.getInt("${coinInfos[i]!!.coinName}'s position in coinInfosBithumb", 0)
                         temp.add(null)
+                    } catch (e: IndexOutOfBoundsException) {
+                        break
                     }
-                    if (URL == huobiAddress) {
-                        coinInfos[i]!!.coinViewCheck = pref.getBoolean("${coinInfos[i]!!.coinName}'s coinViewCheck in coinInfosHuobi", true)
-                        positions[i] = pref.getInt("${coinInfos[i]!!.coinName}'s position in coinInfosHuobi", 0)
-                        temp.add(null)
-                    }
-                } catch(e: IndexOutOfBoundsException) {
-                    break
+                }
+            }
+            if (URL == huobiAddress && pref.getBoolean("isNotEmptyHuobi", false)) {
+                for (i in coinInfos.indices) {
+                    coinInfos[i]!!.coinViewCheck = pref.getBoolean("${coinInfos[i]!!.coinName}'s coinViewCheck in coinInfosHuobi", true)
+                    positions[i] = pref.getInt("${coinInfos[i]!!.coinName}'s position in coinInfosHuobi", 0)
+                    temp.add(null)
                 }
             }
 
-            for (i in coinInfos.indices) // temp의 각 위치에 coinInfos의 원소를 넣는다
-                temp[positions[i]!!] = coinInfos[i]
+            if (temp.isNotEmpty()) {
+                for (i in coinInfos.indices) // temp의 각 위치에 coinInfos의 원소를 넣는다
+                    temp[positions[i]!!] = coinInfos[i]
 
-            coinInfos = temp
+                coinInfos = temp
+            }
 
             if (!mCallback.isEmptyCoinone() && !mCallback.isEmptyBithumb() && !mCallback.isEmptyHuobi()) {
                 restartApp = false
@@ -112,14 +126,14 @@ class ArrayMaker(
             coinInfos.add(CoinInfoCoinone(currencyList.prom, "PROM / 프로메테우스", R.drawable.prom))
             coinInfos.add(CoinInfoCoinone(currencyList.atom, "ATOM / 코스모스아톰", R.drawable.atom))
             coinInfos.add(CoinInfoCoinone(currencyList.xtz, "XTZ / 테조스", R.drawable.xtz))
-            coinInfos.add(CoinInfoCoinone(currencyList.psc, "PSC / 폴스타코인", R.drawable.basic)) //
+            coinInfos.add(CoinInfoCoinone(currencyList.psc, "PSC / 폴스타코인", R.drawable.basic))
             coinInfos.add(CoinInfoCoinone(currencyList.pci, "PCI / 페이코인", R.drawable.pci))
             coinInfos.add(CoinInfoCoinone(currencyList.trx, "TRX / 트론", R.drawable.trx))
             coinInfos.add(CoinInfoCoinone(currencyList.fleta, "FLETA / 플레타", R.drawable.fleta))
             coinInfos.add(CoinInfoCoinone(currencyList.qtum, "QTUM / 퀀텀", R.drawable.qtum))
             coinInfos.add(CoinInfoCoinone(currencyList.luna, "LUNA / 루나", R.drawable.luna))
             coinInfos.add(CoinInfoCoinone(currencyList.knc, "KNC / 카이버", R.drawable.knc))
-            coinInfos.add(CoinInfoCoinone(currencyList.kvi, "KVI / 케이브이아이", R.drawable.basic)) //
+            coinInfos.add(CoinInfoCoinone(currencyList.kvi, "KVI / 케이브이아이", R.drawable.basic))
             coinInfos.add(CoinInfoCoinone(currencyList.egg, "EGG / 네스트리", R.drawable.egg))
             coinInfos.add(CoinInfoCoinone(currencyList.bna, "BNA / 바나나톡", R.drawable.bna))
             coinInfos.add(CoinInfoCoinone(currencyList.xlm, "XLM / 스텔라루멘", R.drawable.xlm))
@@ -128,7 +142,6 @@ class ArrayMaker(
             coinInfos.add(CoinInfoCoinone(currencyList.gas, "GAS / 가스", R.drawable.gas))
             coinInfos.add(CoinInfoCoinone(currencyList.ogn, "OGN / 오리진 프로토콜", R.drawable.ogn))
             coinInfos.add(CoinInfoCoinone(currencyList.ong, "ONG / 온돌로지가스", R.drawable.ong))
-            coinInfos.add(CoinInfoCoinone(currencyList.chz, "CHZ / 칠리즈", R.drawable.chz))
             coinInfos.add(CoinInfoCoinone(currencyList.data, "DATA / 스트리머", R.drawable.data))
             coinInfos.add(CoinInfoCoinone(currencyList.soc, "SOC / 소다코인", R.drawable.soc))
             coinInfos.add(CoinInfoCoinone(currencyList.zil, "ZIL / 질리카", R.drawable.zil))
@@ -141,19 +154,16 @@ class ArrayMaker(
             coinInfos.add(CoinInfoCoinone(currencyList.mbl, "MBL / 무비블록", R.drawable.mbl))
             coinInfos.add(CoinInfoCoinone(currencyList.omg, "OMG / 오미세고", R.drawable.omg))
             coinInfos.add(CoinInfoCoinone(currencyList.btt, "BTT / 비트토렌트", R.drawable.btt))
-            coinInfos.add(CoinInfoCoinone(currencyList.drm, "DRM / 두드림체인", R.drawable.basic)) //
-            coinInfos.add(CoinInfoCoinone(currencyList.spin, "SPIN / 스핀프로토콜", R.drawable.spin))
+            coinInfos.add(CoinInfoCoinone(currencyList.drm, "DRM / 두드림체인", R.drawable.basic))
             coinInfos.add(CoinInfoCoinone(currencyList.ankr, "ANKR / 앵커 네크워크", R.drawable.ankr))
             coinInfos.add(CoinInfoCoinone(currencyList.stpt, "STPT / 에스티피", R.drawable.stpt))
             coinInfos.add(CoinInfoCoinone(currencyList.ont, "ONT / 온톨로지", R.drawable.ont))
             coinInfos.add(CoinInfoCoinone(currencyList.matic, "MATIC / 매틱 네트워크", R.drawable.matic))
             coinInfos.add(CoinInfoCoinone(currencyList.temco, "TEMCO / 템코", R.drawable.temco))
-            coinInfos.add(CoinInfoCoinone(currencyList.ftm, "FTM / 팬텀", R.drawable.ftm))
             coinInfos.add(CoinInfoCoinone(currencyList.iotx, "IOTX / 아이오텍스", R.drawable.iotx))
             coinInfos.add(CoinInfoCoinone(currencyList.abl, "ABL / 에어블록", R.drawable.abl))
             coinInfos.add(CoinInfoCoinone(currencyList.pib, "PIB / 피블", R.drawable.pib))
             coinInfos.add(CoinInfoCoinone(currencyList.amo, "AMO / 아모코인", R.drawable.amo))
-            coinInfos.add(CoinInfoCoinone(currencyList.troy, "TROY / 트로이", R.drawable.troy))
             coinInfos.add(CoinInfoCoinone(currencyList.clb, "CLB / 클라우드브릭", R.drawable.clb))
             coinInfos.add(CoinInfoCoinone(currencyList.orbs, "ORBS / 오브스", R.drawable.orbs))
             coinInfos.add(CoinInfoCoinone(currencyList.baas, "BAAS / 바스아이디", R.drawable.baas))
@@ -211,7 +221,6 @@ class ArrayMaker(
             coinInfos.add(CoinInfoBithumb(currencyList.XLM, "XLM / 스텔라루멘", R.drawable.xlm))
             coinInfos.add(CoinInfoBithumb(currencyList.EOS, "EOS / 이오스", R.drawable.eos))
             coinInfos.add(CoinInfoBithumb(currencyList.MBL, "MBL / 무비블록", R.drawable.mbl))
-            coinInfos.add(CoinInfoBithumb(currencyList.BNP, "BNP / 베네핏", R.drawable.bnp)) // 상장 폐지
             coinInfos.add(CoinInfoBithumb(currencyList.BSV, "BSV / 비트코인에스브이", R.drawable.bsv))
             coinInfos.add(CoinInfoBithumb(currencyList.XSR, "XSR / 젠서", R.drawable.xsr))
             coinInfos.add(CoinInfoBithumb(currencyList.WICC, "WICC / 웨이키체인", R.drawable.wicc))
@@ -233,14 +242,12 @@ class ArrayMaker(
             coinInfos.add(CoinInfoBithumb(currencyList.ANKR, "ANKR / 앵커", R.drawable.ankr))
             coinInfos.add(CoinInfoBithumb(currencyList.BAT, "BAT / 베이직어텐션토큰", R.drawable.bat))
             coinInfos.add(CoinInfoBithumb(currencyList.GXC, "GXC / 지엑스체인", R.drawable.gxc))
-            coinInfos.add(CoinInfoBithumb(currencyList.WPX, "WPX / 더블유플러스", R.drawable.wpx))
             coinInfos.add(CoinInfoBithumb(currencyList.ETC, "ETC / 이더리움 클래식", R.drawable.etc))
             coinInfos.add(CoinInfoBithumb(currencyList.HDAC, "HDAC / 에이치닥", R.drawable.hdac))
             coinInfos.add(CoinInfoBithumb(currencyList.THETA, "THETA / 쎄타토큰", R.drawable.theta))
             coinInfos.add(CoinInfoBithumb(currencyList.SXP, "SXP / 스와이프", R.drawable.sxp))
             coinInfos.add(CoinInfoBithumb(currencyList.ADA, "ADA / 에이다", R.drawable.ada))
             coinInfos.add(CoinInfoBithumb(currencyList.DASH, "DASH / 대시", R.drawable.dash))
-            coinInfos.add(CoinInfoBithumb(currencyList.XMR, "XMR / 모네로", R.drawable.xmr))
             coinInfos.add(CoinInfoBithumb(currencyList.LINK, "LINK / 체인링크", R.drawable.link))
             coinInfos.add(CoinInfoBithumb(currencyList.WAXP, "WAXP / 왁스", R.drawable.waxp))
             coinInfos.add(CoinInfoBithumb(currencyList.KNC, "KNC / 카이버 네트워크", R.drawable.knc))
@@ -264,7 +271,6 @@ class ArrayMaker(
             coinInfos.add(CoinInfoBithumb(currencyList.IPX, "IPX / 타키온프로토콜", R.drawable.ipx))
             coinInfos.add(CoinInfoBithumb(currencyList.NPXS, "NPXS / 펀디엑스", R.drawable.npxs))
             coinInfos.add(CoinInfoBithumb(currencyList.IOST, "IOST / 이오스트", R.drawable.iost))
-            coinInfos.add(CoinInfoBithumb(currencyList.FZZ, "FZZ / 피즈토큰", R.drawable.fzz))
             coinInfos.add(CoinInfoBithumb(currencyList.DAD, "DAD / 다드", R.drawable.dad))
             coinInfos.add(CoinInfoBithumb(currencyList.CON, "CON / 코넌", R.drawable.conun))
             coinInfos.add(CoinInfoBithumb(currencyList.BZNT, "BZNT / 베잔트", R.drawable.bznt))
@@ -284,7 +290,6 @@ class ArrayMaker(
             coinInfos.add(CoinInfoBithumb(currencyList.CRO, "CRO / 크립토닷컴체인", R.drawable.cro))
             coinInfos.add(CoinInfoBithumb(currencyList.WOM, "WOM / 왐토큰", R.drawable.wom))
             coinInfos.add(CoinInfoBithumb(currencyList.PIVX, "PIVX / 피벡스", R.drawable.pivx))
-            coinInfos.add(CoinInfoBithumb(currencyList.INS, "INS / 아이앤에스", R.drawable.ins))
             coinInfos.add(CoinInfoBithumb(currencyList.OMG, "OMG / 오미세고", R.drawable.omg))
             coinInfos.add(CoinInfoBithumb(currencyList.QKC, "QKC / 쿼크체인", R.drawable.qkc))
             coinInfos.add(CoinInfoBithumb(currencyList.OGO, "OGO / 오리고", R.drawable.ogo))
@@ -294,14 +299,12 @@ class ArrayMaker(
             coinInfos.add(CoinInfoBithumb(currencyList.VALOR, "VALOR / 밸러토큰", R.drawable.valor))
             coinInfos.add(CoinInfoBithumb(currencyList.LBA, "LBA / 크레드", R.drawable.lba))
             coinInfos.add(CoinInfoBithumb(currencyList.TRV, "TRV / 트러스트버스", R.drawable.trv))
-            coinInfos.add(CoinInfoBithumb(currencyList.XVG, "XVG / 버지", R.drawable.xvg))
             coinInfos.add(CoinInfoBithumb(currencyList.GNT, "GNT / 골렘", R.drawable.gnt))
             coinInfos.add(CoinInfoBithumb(currencyList.LAMB, "LAMB / 람다", R.drawable.lamb))
             coinInfos.add(CoinInfoBithumb(currencyList.RNT, "RNT / 원루트 네트워크", R.drawable.rnt))
             coinInfos.add(CoinInfoBithumb(currencyList.ZRX, "ZRX / 제로엑스", R.drawable.zrx))
             coinInfos.add(CoinInfoBithumb(currencyList.WTC, "WTC / 월튼체인", R.drawable.wtc))
             coinInfos.add(CoinInfoBithumb(currencyList.XEM, "XEM / 넴", R.drawable.xem))
-            coinInfos.add(CoinInfoBithumb(currencyList.BHP, "BHP / 비에이치피", R.drawable.bhp))
         }
 
         if (URL == huobiAddress) {
@@ -331,6 +334,9 @@ class ArrayMaker(
             coinInfos.add(CoinInfoHuobi(currencyList.skm, "SKM / 스크럼블 네트워크", R.drawable.skm))
         }
 
+        /* for (i in coinInfos.indices) // 상장폐지 확인용
+            if (coinInfos[i]?.coinData == null)
+                println("coinInfos[$i] before remove is null") */
         for (i in coinInfos.indices) {
             try {
                 if (coinInfos[i]?.coinData == null) {
@@ -341,6 +347,12 @@ class ArrayMaker(
                 break
             }
         }
+        /* for (i in coinInfos.indices) { // 상장폐지 확인용
+            if (coinInfos[i]?.coinData == null)
+                println("coinInfos[$i] after remove is null")
+            else
+                println("coinInfos[$i] after remove is not null")
+        } */
 
         return coinInfos
     }
